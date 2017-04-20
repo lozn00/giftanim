@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="180dp"
+    android:layout_height="wrap_content"
+
+    >
+    <!--170dp-->
+    <RelativeLayout
+        android:id="@+id/relayout_live_anchor"
+        android:layout_width="@dimen/dp_live_bar_width"
+        android:layout_height="@dimen/dp_live_bar_height"
+        android:background="@drawable/shape_gift_bar"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <cn.qssq666.giftanim.ui.CircleImageView
+            android:id="@+id/iv_head"
+            android:layout_width="@dimen/dp_oval_bar_height"
+            android:layout_height="@dimen/dp_oval_bar_height"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="1.0dip"
+            android:scaleType="centerCrop"
+            android:visibility="visible" />
+
+        <TextView
+            android:id="@+id/tv_nickname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="2.0dip"
+            android:layout_toRightOf="@+id/iv_head"
+            android:ellipsize="end"
+            android:maxWidth="60.0dip"
+            android:minWidth="2.0dip"
+            android:singleLine="true"
+            android:text="情随事迁"
+            android:textColor="@color/colorBlack"
+            android:textSize="11sp" />
+
+
+        <ImageView
+            android:id="@+id/iv_gift"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="5.0dip"
+            android:scaleType="centerInside"
+            android:src="@drawable/gift_1" />
+
+    </RelativeLayout>
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/dp_live_bar_height"
+        android:layout_gravity="right|top"
+        android:minWidth="40dp">
+
+        <cn.qssq666.giftanim.ui.StrokeTextView
+            android:id="@+id/tv_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="5dp"
+            android:text="x1"
+            android:textColor="@android:color/white"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            app:borderColor="@android:color/holo_red_dark" />
+    </FrameLayout>
+</FrameLayout>
