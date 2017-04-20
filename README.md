@@ -61,3 +61,54 @@
         android:layout_marginLeft="@dimen/theme_margin"
         android:layout_marginTop="@dimen/theme_margin" />
  ```
+ demo布局
+ ```
+ <?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorAccent"
+    tools:context="cn.qssq666.giftanim.MainActivity">
+
+
+    <cn.qssq666.giftanim.periscope.GiftAnimLayout
+        android:id="@+id/giftlayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></cn.qssq666.giftanim.periscope.GiftAnimLayout>
+
+    <cn.qssq666.giftanim.periscope.FavorLayout
+        android:id="@+id/favorlayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="@dimen/theme_margin"
+        android:layout_marginTop="@dimen/theme_margin" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_margin="@dimen/theme_margin"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_zan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="赞" />
+
+        <Button
+            android:id="@+id/btn_gift"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="礼物" />
+
+    </LinearLayout>
+
+
+</RelativeLayout>
+
+```
+ 所以说我这个还是很简单的啦
