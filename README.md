@@ -1,7 +1,8 @@
 
-![演示图片](https://github.com/qssq/giftanim/BoomMenu/raw/master/Pictures/anim.gif)
 
-# giftanim
+![演示图片地址](https://github.com/qssq/giftanim/blob/master/Pictures/anim.gif)
+
+#Live giftanim 经典的直播礼物动画 你值得拥有！
 送赞送礼物动画 仿映客礼物侧栏动画效果，2016年的老东西了，老板都删除直播功能了，就分享给大家了。。
 
 支持礼物动画 x1 x2 x3
