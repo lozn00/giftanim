@@ -1,3 +1,6 @@
+
+![延时图片](https://github.com/qssq/giftanim/BoomMenu/raw/master/Pictures/anim.gif)
+
 # giftanim
 送赞送礼物动画 仿映客礼物侧栏动画效果，2016年的老东西了，老板都删除直播功能了，就分享给大家了。。
 
