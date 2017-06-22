@@ -1,34 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="CircleImageView">
-        <attr name="border_width" format="dimension"/>
-        <attr name="border_color" format="color"/>
-    </declare-styleable>
-    <declare-styleable name="NameValueBlock">
-        <attr name="firstText" format="string"/>
-        <attr name="secondText" format="string"/>
-        <attr name="drawableTop" format="reference"/>
-        <attr name="drawablePadding" format="reference|dimension"/>
-        <attr name="childPadTop" format="reference|dimension"/>
-        <attr name="firstChildColor" format="reference|color"/>
-        <attr name="secondChildColor" format="reference|color"/>
-        <attr name="childEnable" format="reference|boolean"/>
-
-    </declare-styleable>
-    <declare-styleable name="SetingBar">
-        <attr name="bar_title" format="string"/>
+        <attr name="border_width" format="dimension" />
+        <attr name="border_color" format="color" />
     </declare-styleable>
 
     <!--mBorderWidth = a.getDimensionPixelSize(R.styleable.CircleImageView_border_width, DEFAULT_BORDER_WIDTH);-->
     <!--mBorderColor = a.getColor(R.styleable.CircleImageView_border_color, DEFAULT_BORDER_COLOR);-->
-
-    <declare-styleable name="ViewPager">
-        <attr name="orientation">
-            <enum name="horizontal" value="0"/>
-            <enum name="vertical" value="1"/>
-        </attr>
-    </declare-styleable>
     <declare-styleable name="StrokeTextView">
-        <attr name="borderColor" format="reference|color"/>
+        <attr name="borderColor" format="reference|color" />
     </declare-styleable>
 </resources>
