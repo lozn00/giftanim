@@ -8,11 +8,12 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Random;
 
-import cn.qssq666.giftanim.bean.GiftModel;
-import cn.qssq666.giftanim.bean.UserInfo;
-import cn.qssq666.giftanim.interfacei.UserInfoI;
-import cn.qssq666.giftanim.periscope.FavorLayout;
-import cn.qssq666.giftanim.periscope.GiftAnimLayout;
+import cn.qssq666.giftmodule.bean.GiftModel;
+import cn.qssq666.giftmodule.bean.UserInfo;
+import cn.qssq666.giftmodule.interfacei.GiftModelI;
+import cn.qssq666.giftmodule.interfacei.UserInfoI;
+import cn.qssq666.giftmodule.periscope.FavorLayout;
+import cn.qssq666.giftmodule.periscope.GiftAnimLayout;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -48,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 info.setUserId("" + userId);
                 int i = new Random().nextInt(imgs.size());
                 info.setName("情随事迁" + i);
-                GiftModel model = new GiftModel(100 + i, imgs.get(i));
+                GiftModelI model = new GiftModel(100 + i, imgs.get(i));
 //                giftAnimLayout.productAndShow(this, info, model);
                 giftAnimLayout.showNewGift(this, info, model);
                 break;

@@ -8,12 +8,12 @@
     tools:context="cn.qssq666.giftanim.MainActivity">
 
 
-    <cn.qssq666.giftanim.periscope.GiftAnimLayout
+    <cn.qssq666.giftmodule.periscope.GiftAnimLayout
         android:id="@+id/giftlayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"></cn.qssq666.giftanim.periscope.GiftAnimLayout>
+        android:layout_height="match_parent"></cn.qssq666.giftmodule.periscope.GiftAnimLayout>
 
-    <cn.qssq666.giftanim.periscope.FavorLayout
+    <cn.qssq666.giftmodule.periscope.FavorLayout
         android:id="@+id/favorlayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
