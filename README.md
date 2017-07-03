@@ -11,6 +11,37 @@
 包含点赞动画和 送礼物侧拉动画。
 
 ```
+对外方法 
+
+setOnGiftBarClick 监听bar点击事件可以获取用户信息和被点击礼物。
+setMaxShowCount 可控制最大显示多少条，也就是后面的将会排队等待。
+setShowDuration 控制一个礼物的显示时间
+showNewGift 显示一个礼物 传递context,userinfo,giftmodel 的实现类
+setGiftCallBack 可以实现高度定置化 
+
+   public interface GiftCallBack {
+        void onGiftAnimOver(GiftModelI giftModel);
+
+        void onConvertGiftAnim(GiftModelI giftModel);
+
+        void onAddNewGift(GiftModelI giftModel);
+
+        void onAddWaitUnique(GiftModelI giftModel);
+
+        /**
+         * 如果礼物的值是从其他地方维护的，
+         *
+         * @param modelI
+         * @param tvValue
+         * @return
+         */
+        int onRequestShowGiftCount(GiftModelI modelI, StrokeTextView tvValue);
+    }
+
+
+功能扩展
+ 自己维护显示x1 x2 解决实际需求 进入房间后是从自定位置开始问题。
+ 比如实现giftmodelI接口 并创建一个showcount字段 来自服务器， 在 结束礼物的时候  onGiftAnimOver重置总数为0 用户发送一个礼物模型json应该为1 ，
    favorLayout = ((FavorLayout) findViewById(R.id.favorlayout));
 
         giftAnimLayout = ((GiftAnimLayout) findViewById(R.id.giftlayout));
