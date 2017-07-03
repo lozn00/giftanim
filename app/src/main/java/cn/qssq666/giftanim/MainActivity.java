@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 String userId = new Random().nextInt(5) + "";
                 info.setUserId("" + userId);
                 int i = new Random().nextInt(imgs.size());
+                info.setPortraitUri("http://www.showself.com/yule/uploadfile/2016/0712/20160712060703783.jpg");
                 info.setName("情随事迁" + i);
                 GiftModelI model = new GiftModel(100 + i, imgs.get(i));
 //                giftAnimLayout.productAndShow(this, info, model);

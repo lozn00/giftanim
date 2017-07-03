@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="180dp"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
 
     >
     <!--170dp-->
+
+
     <RelativeLayout
         android:id="@+id/relayout_live_anchor"
         android:layout_width="@dimen/dp_live_bar_width"
-        android:layout_height="@dimen/dp_live_bar_height"
+        android:layout_height="@dimen/gift_bar_height"
+
         android:background="@drawable/shape_gift_bar"
         android:clickable="true"
         android:focusable="true"
@@ -18,8 +21,9 @@
 
         <cn.qssq666.giftmodule.ui.CircleImageView
             android:id="@+id/iv_head"
-            android:layout_width="@dimen/dp_oval_bar_height"
-            android:layout_height="@dimen/dp_oval_bar_height"
+
+            android:layout_width="@dimen/gift_bar_height"
+            android:layout_height="@dimen/gift_bar_height"
             android:layout_centerVertical="true"
             android:layout_marginLeft="1.0dip"
             android:scaleType="centerCrop"
@@ -28,17 +32,19 @@
         <TextView
             android:id="@+id/tv_nickname"
             android:layout_width="wrap_content"
+
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginLeft="2.0dip"
             android:layout_toRightOf="@+id/iv_head"
             android:ellipsize="end"
-            android:maxWidth="60.0dip"
-            android:minWidth="2.0dip"
+            android:maxLength="9"
+            android:maxWidth="70.0dip"
+            android:minWidth="4.0dip"
             android:singleLine="true"
-            android:text="情随事迁"
+            android:text="情随事ffffff迁"
             android:textColor="@color/colorBlack"
-            android:textSize="11sp" />
+            android:textSize="13sp" />
 
 
         <ImageView
@@ -52,22 +58,32 @@
 
     </RelativeLayout>
 
+
+    <cn.qssq666.giftmodule.ui.StrokeTextView
+        android:id="@+id/tv_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/relayout_live_anchor"
+        android:layout_alignRight="@+id/relayout_live_anchor"
+        android:layout_gravity="center"
+        android:layout_marginTop="5dp"
+        android:text="x1"
+        android:textColor="@android:color/white"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        app:borderColor="@android:color/holo_red_dark" />
+    <!--  android:scaleX="2.6"
+      android:scaleY="2.6"-->
+
+
     <FrameLayout
         android:layout_width="wrap_content"
-        android:layout_height="@dimen/dp_live_bar_height"
+        android:layout_height="wrap_content"
         android:layout_gravity="right|top"
-        android:minWidth="40dp">
+        android:minHeight="50dp"
 
-        <cn.qssq666.giftmodule.ui.StrokeTextView
-            android:id="@+id/tv_value"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginBottom="5dp"
-            android:text="x1"
-            android:textColor="@android:color/white"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            app:borderColor="@android:color/holo_red_dark" />
+        >
+
+
     </FrameLayout>
-</FrameLayout>
+</RelativeLayout>

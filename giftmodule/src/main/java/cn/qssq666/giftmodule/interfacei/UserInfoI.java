@@ -10,5 +10,5 @@ public interface UserInfoI {
 
     String getUserId();
 
-    String getPortraitUri();
+    String getFace();
 }

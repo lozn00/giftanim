@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="dp_live_bar_width">170dp</dimen>
-    <dimen name="dp_live_bar_height">26dp</dimen>
+    <dimen name="dp_live_bar_height">50dp</dimen>
     <dimen name="dp_oval_bar_height">24dp</dimen>
     <dimen name="theme_margin">12dp</dimen>
+    <dimen name="gift_bar_height">40dp</dimen>
 </resources>

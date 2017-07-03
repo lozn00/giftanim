@@ -28,7 +28,7 @@ public class UserInfo implements UserInfoI {
 
     String userId;
 
-    public String getPortraitUri() {
+    public String getFace() {
         return portraitUri;
     }
 

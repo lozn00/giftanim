@@ -7,6 +7,7 @@ import java.util.Set;
 
 /**
  * Created by luozheng on 2016/4/28. qssq.space
+ * 2017年7月3日 11:32:04  时间过得太快，我已经我不知道这东西是干什么用的，又看了一下，貌似是一个支持统计添加的次数的东西。{@link CountList @getCount} 传递一个model可以判断它的次数。
  */
 public class CountList<E> extends ArrayList<E> {
     HashMap<E, Integer> countMaps = new HashMap<>();
@@ -54,7 +55,7 @@ public class CountList<E> extends ArrayList<E> {
     /**
      * @param object
      * @return
-     * @deprecated 过时了不能操作  请使用 addUnique
+     * @deprecated 请使用 addUnique
      */
     @Override
     public boolean add(E object) {
