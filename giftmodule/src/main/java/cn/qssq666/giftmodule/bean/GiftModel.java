@@ -8,6 +8,9 @@ import cn.qssq666.giftmodule.interfacei.GiftModelI;
  */
 
 public class GiftModel implements GiftModelI {
+    public GiftModel() {
+    }
+
     public GiftModel(int money, String img) {
         this.money = money;
         this.image = img;
@@ -51,6 +54,16 @@ public class GiftModel implements GiftModelI {
     public String getUnit() {
         return unit;
     }
+
+    public int getShowcount() {
+        return showcount;
+    }
+
+    public void setShowcount(int showcount) {
+        this.showcount = showcount;
+    }
+
+    public int showcount;
 
     public void setUnit(String unit) {
         this.unit = unit;

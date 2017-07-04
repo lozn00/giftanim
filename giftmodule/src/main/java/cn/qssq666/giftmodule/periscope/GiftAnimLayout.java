@@ -1,12 +1,36 @@
+/*
+ *
+ *                     .::::.
+ *                   .::::::::.
+ *                  :::::::::::  by qssq666@foxmail.com
+ *              ..:::::::::::'
+ *            '::::::::::::'
+ *              .::::::::::
+ *         '::::::::::::::..
+ *              ..::::::::::::.
+ *            ``::::::::::::::::
+ *             ::::``:::::::::'        .:::.
+ *            ::::'   ':::::'       .::::::::.
+ *          .::::'      ::::     .:::::::'::::.
+ *         .:::'       :::::  .:::::::::' ':::::.
+ *        .::'        :::::.:::::::::'      ':::::.
+ *       .::'         ::::::::::::::'         ``::::.
+ *   ...:::           ::::::::::::'              ``::.
+ *  ```` ':.          ':::::::::'                  ::::..
+ *                     '.:::::'                    ':'````..
+ *
+ */
+
 package cn.qssq666.giftmodule.periscope;
 
 import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.LayoutTransition;
 import android.animation.ObjectAnimator;
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Bitmap;
+import android.os.Handler;
+import android.os.Looper;
+import android.support.v4.util.Pair;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.LruCache;
@@ -22,16 +46,17 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
 import java.util.ArrayList;
 
 import cn.qssq666.giftmodule.R;
+import cn.qssq666.giftmodule.holder.BaseViewHolderI;
 import cn.qssq666.giftmodule.interfacei.GiftModelI;
 import cn.qssq666.giftmodule.interfacei.UserInfoI;
 import cn.qssq666.giftmodule.ui.StrokeTextView;
 import cn.qssq666.giftmodule.util.CountList;
 import cn.qssq666.giftmodule.util.DensityUtil;
+
 
 /**
  * Created by luozheng on 2016/4/13. qssq666.cn
@@ -80,9 +105,9 @@ public class GiftAnimLayout extends LinearLayout {
      * 这是正在动画中处理的.
      */
     private int mMaxCacheViewCount = 10;
-    private LruCache<String, View> atShowMaps = new LruCache<String, View>(mMaxCacheViewCount) {//正在显示的礼物队列
+    private LruCache<String, Pair<GiftHolder, GiftEndRunnable>> atShowMaps = new LruCache<String, Pair<GiftHolder, GiftEndRunnable>>(mMaxCacheViewCount) {//正在显示的礼物队列
         @Override
-        protected int sizeOf(String key, View value) {
+        protected int sizeOf(String key, Pair<GiftHolder, GiftEndRunnable> value) {
             return super.sizeOf(key, value);//默认就是1
         }
     };
@@ -223,9 +248,9 @@ public class GiftAnimLayout extends LinearLayout {
      * @param giftModel
      */
     public void showNewGift(final Context context, UserInfoI userInfo, final GiftModelI giftModel) {
-        View view = atShowMaps.get(getKey(userInfo, giftModel));
+        Pair<GiftHolder, GiftEndRunnable> pair = atShowMaps.get(getKey(userInfo, giftModel));
 
-        if (view == null) {
+        if (pair == null) {
             synchronized (waitList) {
                 if (maxShowCount > 0 && getChildCount() >= maxShowCount) {
                     waitList.addUnique(UserInfoPair.create(userInfo, giftModel));
@@ -242,53 +267,66 @@ public class GiftAnimLayout extends LinearLayout {
             }
         } else {
             Log.d(TAG, "发现已存在图片" + giftModel.getImage() + ",加持显示中。");
-            continueShow(context, userInfo, giftModel, view);
+            continueShow(context, userInfo, giftModel, pair);
         }
     }
 
-    private void continueShow(Context context, UserInfoI userInfo, GiftModelI giftModel, View view) {
-        ViewGroup viewGroup = (ViewGroup) view;
-        StrokeTextView tvValue = (StrokeTextView) viewGroup.findViewById(R.id.tv_value);
-        tvValue.setValue(giftCallBack == null ? 1 + tvValue.getValue() : giftCallBack.onRequestShowGiftCount(giftModel, tvValue));
-        tvValue.setText("X" + tvValue.getValue());//默认就是1只是第一次没显示出啦i
+    private void continueShow(Context context, UserInfoI userInfo, GiftModelI giftModel, Pair<GiftHolder, GiftEndRunnable> pair) {
+        GiftHolder giftHolder = pair.first;
+        giftHolder.tvValue.setValue(giftCallBack == null ? 1 + giftHolder.tvValue.getValue() : giftCallBack.onRequestShowGiftCount(giftModel, giftHolder.tvValue));
+        giftHolder.tvValue.setText("X" + giftHolder.tvValue.getValue());//默认就是1只是第一次没显示出啦i
         final Animation animation = AnimationUtils.loadAnimation(context, R.anim.scale_anim);//字体动画
-        tvValue.startAnimation(animation);
-        Object tag = view.getTag(R.id.gift_anim_end_tag);
-        if (tag != null && tag instanceof GiftEndRunnable) {
+        giftHolder.tvValue.startAnimation(animation);
+        handler.removeCallbacks(pair.second);
+        pair.first.getItemView().clearAnimation();
+        postDelayExecuteRunnable(pair.second, showDuration);
+
+       /* if (tag != null && tag instanceof GiftEndRunnable) {
             if (giftCallBack != null) {
                 giftCallBack.onConvertGiftAnim(giftModel);
             }
-            view.clearAnimation();
+            pair.clearAnimation();
             GiftEndRunnable runnable = (GiftEndRunnable) tag;//少创建了一个runnable对象。。
-            boolean removeResult = view.removeCallbacks(runnable);//移除原来的动画
-            view.postDelayed(runnable, showDuration);
-            Log.d(TAG, "终于找到图片了,删除原来延时，重新延迟中,是否移除原来的runnable成功：" + removeResult);
+
+            postDelayExecuteRunnable(runnable, showDuration);
+            Log.d(TAG, "终于找到图片了,删除原来延时，重新延迟中：");
         } else {
-            startEndAnimRunnable(view, getKey(userInfo, giftModel), giftModel);
+            startEndAnimRunnable(pair, getKey(userInfo, giftModel), giftModel);
 //            atShowMaps.remove(getKey(userInfo,giftModel));
-            Log.d(TAG, "无法加持动画了 可能还在显示的过程中的动画 但是在这个过程的动画没法延长时间呀" + tag);
-        }
+            Log.w(TAG, "警告 出现 队列异常 问题 显示集合中还存在，但是并没有找到定时关闭runnable" + tag + ",gift:" + giftModel.getTitle());
+        }*/
         return;
     }
+
 
     public final String TAG_TIME = "TIME";
 
     /**
-     * @param context
-     * @param userInfo
-     * @param giftModel
+     * @param group
+     * @return
      */
+    private Pair<GiftHolder, GiftEndRunnable> createGiftViewPair(ViewGroup group, String key, GiftModelI model) {
+        GiftHolder giftHolder = new GiftHolder(group);
+        GiftEndRunnable endRunnable = new GiftEndRunnable(giftHolder, key);
+        endRunnable.setGiftModel(model);
+        return Pair.create(giftHolder, endRunnable);
+    }
+
     private void productAndShow(final Context context, final UserInfoI userInfo, final GiftModelI giftModel) {
 
         final ViewGroup viewGroup = getGiftLayout(context);
-        atShowMaps.put(getKey(userInfo, giftModel), viewGroup);
-        @SuppressLint("WrongViewCast") StrokeTextView tvValue = (StrokeTextView) viewGroup.findViewById(R.id.tv_value);
-        final ImageView imageView = (ImageView) viewGroup.findViewById(R.id.iv_gift);
-        ((TextView) viewGroup.findViewById(R.id.tv_nickname)).setText("" + userInfo.getName());
-        if (userInfo.getFace() != null) {
-            ImageLoader.getInstance().displayImage(userInfo.getFace().toString(), ((ImageView) viewGroup.findViewById(R.id.iv_head)));
-        }
-        viewGroup.setOnClickListener(new OnClickListener() {
+        viewGroup.setVisibility(INVISIBLE);
+        LayoutParams layoutParams = (LayoutParams) viewGroup.getLayoutParams();
+        layoutParams.gravity = Gravity.LEFT;
+        layoutParams.leftMargin = DensityUtil.dip2px(context, marginLeft);
+        layoutParams.topMargin = DensityUtil.dip2px(context, marginTop);
+        addView(viewGroup, 0, layoutParams);//插入到视图中去
+        String key = getKey(userInfo, giftModel);
+        Pair<GiftHolder, GiftEndRunnable> giftViewPair = createGiftViewPair(viewGroup, key, giftModel);
+        atShowMaps.put(key, giftViewPair);
+        giftViewPair.first.tvName.setText("" + userInfo.getName());
+        giftViewPair.first.tvValue.setValue(giftCallBack == null ? 1 + giftViewPair.first.tvValue.getValue() : giftCallBack.onRequestShowGiftCount(giftModel, giftViewPair.first.tvValue));
+        giftViewPair.first.getItemView().setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (onGiftBarClick != null) {
@@ -297,25 +335,11 @@ public class GiftAnimLayout extends LinearLayout {
                 }
             }
         });
-        imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        LayoutParams layoutParams = (LayoutParams) viewGroup.getLayoutParams();
-        layoutParams.gravity = Gravity.LEFT;
-        layoutParams.leftMargin = DensityUtil.dip2px(context, marginLeft);
-        layoutParams.topMargin = DensityUtil.dip2px(context, marginTop);
-        viewGroup.setVisibility(INVISIBLE);
-        addView(viewGroup, 0, layoutParams);//插入到视图中去
+        giftViewPair.first.ivGift.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
-//        layoutParams.gravity = Gravity.CENTER_VERTICAL|Gravity.CENTER_HORIZONTAL;
-        ImageLoader.getInstance().displayImage(giftModel.getImage(), imageView, new SimpleImageLoadingListener() {
-            @Override
-            public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                super.onLoadingComplete(imageUri, view, loadedImage);
-                Log.d(TAG, "图片查询完成");
-//                animation.set
-                doShowGiftAnim(getKey(userInfo, giftModel), giftModel, viewGroup);
-
-            }
-        });
+        ImageLoader.getInstance().displayImage(userInfo.getFace(), giftViewPair.first.ivFace);
+        ImageLoader.getInstance().displayImage(giftModel.getImage(), giftViewPair.first.ivGift);
+        doShowGiftAnim(getKey(userInfo, giftModel), giftModel, giftViewPair);
     }
 
 
@@ -328,14 +352,14 @@ public class GiftAnimLayout extends LinearLayout {
      *
      * @param key       将会被移除的key {@link GiftAnimLayout#getKey(UserInfoI, GiftModelI)}
      * @param giftModel
-     * @param view
+     * @param pair
      */
-    public void doShowGiftAnim(final String key, final GiftModelI giftModel, final View view) {
+    private void doShowGiftAnim(final String key, final GiftModelI giftModel, final Pair<GiftHolder, GiftEndRunnable> pair) {
 //        final Animation animation = AnimationUtils.loadAnimation(context, R.anim.follow_anim_from_left_vertical_centerr);
 
-        ObjectAnimator anim1 = ObjectAnimator.ofFloat(view, "translationX",
+        ObjectAnimator anim1 = ObjectAnimator.ofFloat(pair.first.getItemView(), "translationX",
                 -100, 0);//
-        ObjectAnimator anim2 = ObjectAnimator.ofFloat(view, "alpha", 0, 1);
+        ObjectAnimator anim2 = ObjectAnimator.ofFloat(pair.first.getItemView(), "alpha", 0, 1);
         AnimatorSet animSet = new AnimatorSet();
         animSet.setDuration(500);
         animSet.setInterpolator(new AccelerateInterpolator());
@@ -351,9 +375,9 @@ public class GiftAnimLayout extends LinearLayout {
                                     if (view.getTag() != null && TAG_TIME.equals(view.getTag())) {
                                         endTime = showDuration + duration;//时间翻倍
                                     }*/
-                                    Log.d(TAG, "动画已经结束");
-                                    view.clearAnimation();//然后进行移除view的动画。
-                                    startEndAnimRunnable(view, key, giftModel);
+                                    Log.d(TAG, "showAnim动画已经结束");
+                                    pair.first.getItemView().clearAnimation();//然后进行移除view的动画。
+                                    postDelayExecuteRunnable(pair.second, showDuration);
                                 }
 
 
@@ -369,7 +393,7 @@ public class GiftAnimLayout extends LinearLayout {
                             }
 
         );
-        view.setVisibility(View.VISIBLE);
+        pair.first.getItemView().setVisibility(View.VISIBLE);
         //两个动画同时执行
         animSet.playTogether(anim1, anim2);
         animSet.start();
@@ -383,12 +407,19 @@ public class GiftAnimLayout extends LinearLayout {
      * @param key
      * @param giftModel
      */
-    private void startEndAnimRunnable(View view, String key, GiftModelI giftModel) {
+  /*  private void startEndAnimRunnable(GiftHolder view, String key, GiftModelI giftModel) {
         GiftEndRunnable giftRunnable = new GiftEndRunnable(view, key);
         giftRunnable.setGiftModel(giftModel);
-        view.setTag(R.id.gift_anim_end_tag, giftRunnable);
-        view.postDelayed(giftRunnable, showDuration);
+        postDelayExecuteRunnable(giftRunnable, showDuration);
     }
+*/
+    public void postDelayExecuteRunnable(Runnable runnable, int time) {
+        handler.removeCallbacks(runnable);
+        handler.postDelayed(runnable, time);
+    }
+//    HashMap<>
+
+    Handler handler = new Handler(Looper.getMainLooper());
 
     /**
      * 礼物结束的 raunnable
@@ -398,7 +429,7 @@ public class GiftAnimLayout extends LinearLayout {
 
     {
         private final String key;
-        private final View view;
+        private final GiftHolder giftHolder;
 
         public void setGiftModel(GiftModelI giftModel) {
             this.giftModel = giftModel;
@@ -406,19 +437,18 @@ public class GiftAnimLayout extends LinearLayout {
 
         GiftModelI giftModel;
 
-        public GiftEndRunnable(View view, String key) {
-            this.view = view;
+        public GiftEndRunnable(GiftHolder giftHolder, String key) {
+            this.giftHolder = giftHolder;
             this.key = key;
 
         }
 
         @Override
         public void run() {
-            Log.d(TAG, "已移除动画图片" + key);
-
-
+            Log.d(TAG, "GiftEndRunnable计时已完成,开始收尾处理,已移除动画图片" + key);
             //进行移除view的动画
             final Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.follow_anim_from_left_to_right_hidden);////follow_anim_from_left_to_right_hidden follow_anim_from_left_vertical_hidden
+            giftHolder.getItemView().clearAnimation();
             animation.setAnimationListener(new Animation.AnimationListener() {
                                                @Override
                                                public void onAnimationStart(Animation animation) {
@@ -427,13 +457,13 @@ public class GiftAnimLayout extends LinearLayout {
 
                                                @Override
                                                public void onAnimationEnd(Animation animation) {
-                                                   atShowMaps.remove(key);
+
+
+                                                   doGiftEndRemoveLogic(giftHolder, key);
 
                                                    if (giftCallBack != null) {
                                                        giftCallBack.onGiftAnimOver(giftModel);
                                                    }
-                                                   doGiftEndRemoveLogic(view);
-
                                                }
 
                                                @Override
@@ -443,8 +473,7 @@ public class GiftAnimLayout extends LinearLayout {
                                            }
 
             );
-            view.clearAnimation();
-            view.startAnimation(animation);
+            giftHolder.getItemView().startAnimation(animation);
         }
     }
 
@@ -473,31 +502,31 @@ public class GiftAnimLayout extends LinearLayout {
 
     GiftCallBack giftCallBack;
 
-    private void doGiftEndRemoveLogic(final View view) {
+    private void doGiftEndRemoveLogic(final GiftHolder giftHolder, final String key) {
 
-        GiftAnimLayout.this.post(new Runnable() {
-                                     @Override
-                                     public void run() {
-                                         view.findViewById(R.id.tv_value).clearAnimation();
-                                         Log.w(TAG, "已移除view:");
-                                         view.clearAnimation();
-                                         view.setTag(R.id.gift_anim_end_tag, null);//释放内存
-                                         removeView(view);
-                                         synchronized (waitList) {//判断排队的队列。
-                                             if (waitList.size() > 0 && getChildCount() <= maxShowCount) {//如果有最大限制的总数了就不应该超过。
-                                                 final UserInfoPair userInfoGiftModelPair = waitList.get(0);
-                                                 final Integer count = waitList.getCount(userInfoGiftModelPair);
-                                                 waitList.remove(0);
+        giftHolder.getItemView().post(new Runnable() {
+                                          @Override
+                                          public void run() {
+                                              giftHolder.tvValue.clearAnimation();
+                                              Log.w(TAG, "已移除view:");
+                                              giftHolder.getItemView().clearAnimation();
+                                              removeView(giftHolder.getItemView());
+                                              atShowMaps.remove(key);
+                                              synchronized (waitList) {//判断排队的队列。
+                                                  if (waitList.size() > 0 && getChildCount() <= maxShowCount) {//如果有最大限制的总数了就不应该超过。
+                                                      final UserInfoPair userInfoGiftModelPair = waitList.get(0);
+                                                      final Integer count = waitList.getCount(userInfoGiftModelPair);
+                                                      waitList.remove(0);
 
 //                                                 final UserInfoI userInfo = userInfoGiftModelPair.first;
 //                                                 final GiftModelI giftModel = userInfoGiftModelPair.second;
-                                                 Log.d(TAG, "重新取出队列中的礼物 此礼物排队总数：" + count);
-                                                 post(new LoopRunnable(getContext(), userInfoGiftModelPair, count));
-                                             }
+                                                      Log.d(TAG, "重新取出队列中的礼物 此礼物排队总数：" + count);
+                                                      post(new LoopRunnable(getContext(), userInfoGiftModelPair, count));
+                                                  }
 
-                                         }
-                                     }
-                                 }
+                                              }
+                                          }
+                                      }
 
         );
     }
@@ -547,5 +576,28 @@ public class GiftAnimLayout extends LinearLayout {
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         GiftAnimLayout.this.removeCallbacks(null);
+        handler.removeCallbacksAndMessages(null);
+    }
+
+    public static class GiftHolder implements BaseViewHolderI {
+        public final View itemView;
+        public final StrokeTextView tvValue;
+        public final TextView tvName;
+        public final ImageView ivFace;
+        public final ImageView ivGift;
+
+        public GiftHolder(View view) {
+            this.itemView = view;
+            tvValue = ((StrokeTextView) view.findViewById(R.id.tv_value));
+            tvName = ((TextView) view.findViewById(R.id.tv_nickname));
+            ivFace = ((ImageView) view.findViewById(R.id.iv_head));
+            ivGift = ((ImageView) view.findViewById(R.id.iv_gift));
+
+        }
+
+        @Override
+        public View getItemView() {
+            return itemView;
+        }
     }
 }

@@ -7,15 +7,20 @@ package cn.qssq666.giftmodule.interfacei;
 public interface GiftModelI {
 
 
-    public String getImage();
+    String getImage();
 
-    public int getId();
-
-
-    public String getTitle();
+    int getId();
 
 
-    public String getUnit();
+    String getTitle();
+
+
+    String getUnit();
+
+    /**
+     * @return 如果一直返回0 代表内部维护 x1 x2但是这无法解决这个问题  ，比如ios那边不做这个 用户在x了20的情况下新用户依然不能连贯了因为对方是x20了你看到的还是x1，
+     */
+    int getShowcount();
 
 
 }

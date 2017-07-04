@@ -75,4 +75,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         imgs.add("drawable://" + R.drawable.zan_8_spotty);
         imgs.add("drawable://" + R.drawable.zan_9_dog);*/
     }
+
+    /**
+     * 如何自己维护x 1 x2 解决 已经x到了20多的时候新用户直接看到了，呢 创建一个字段 为 showcount 默认值为 0
+     * 首先 礼物模型必须保持在内存中一直存在 ，也就是点击相同礼物还是原来的对象，不会创建新的对象，
+     * （还是实现礼物模型的）  在用户赠送礼物的时候判断 showcount==0?如果=0就依次加
+     * 然后在 {@link GiftAnimLayout#setGiftCallBack} onGiftAnimOver 重新设置showcount=0
+     * 最后 礼物模型送过去的是携带showcount的    会在 onRequestShowGiftCount 调用的。 如果不维护 那么内部会检测是否showcount==0
+     */
 }
