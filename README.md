@@ -18,7 +18,7 @@
 
 包含点赞动画和 送礼物侧拉动画。
 
-```
+
 对外方法 
 
 setOnGiftBarClick 监听bar点击事件可以获取用户信息和被点击礼物。
@@ -26,7 +26,7 @@ setMaxShowCount 可控制最大显示多少条，也就是后面的将会排队�
 setShowDuration 控制一个礼物的显示时间
 showNewGift 显示一个礼物 传递context,userinfo,giftmodel 的实现类
 setGiftCallBack 可以实现高度定置化 
-
+```
    public interface GiftCallBack {
         void onGiftAnimOver(GiftModelI giftModel);
 
