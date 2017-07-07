@@ -5,9 +5,13 @@ package cn.qssq666.giftmodule.interfacei;
  */
 
 public interface GiftModelI {
+    /**
+     * 为了和通用的图片adapter不冲突，改名字比较重要。 比如列表是image,而显示的时候咋需要image,就尴尬了。
+     *
+     * @return
+     */
 
-
-    String getImage();
+    String getGiftImage();
 
     int getId();
 

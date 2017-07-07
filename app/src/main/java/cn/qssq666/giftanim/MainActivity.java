@@ -1,15 +1,20 @@
 package cn.qssq666.giftanim;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Toast;
 
+import com.facebook.drawee.backends.pipeline.Fresco;
+
 import java.util.ArrayList;
 import java.util.Random;
 
-import cn.qssq666.giftmodule.bean.GiftModel;
-import cn.qssq666.giftmodule.bean.UserInfo;
+import cn.qssq666.giftmodule.*;
+import cn.qssq666.giftmodule.BuildConfig;
+import cn.qssq666.giftmodule.bean.GiftDemoModel;
+import cn.qssq666.giftmodule.bean.UserDemoInfo;
 import cn.qssq666.giftmodule.interfacei.GiftModelI;
 import cn.qssq666.giftmodule.interfacei.UserInfoI;
 import cn.qssq666.giftmodule.periscope.FavorLayout;
@@ -24,6 +29,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Fresco.initialize(this);
         favorLayout = ((FavorLayout) findViewById(R.id.favorlayout));
 
         giftAnimLayout = ((GiftAnimLayout) findViewById(R.id.giftlayout));
@@ -33,6 +39,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Toast.makeText(MainActivity.this, "你点击了" + userInfo.getName(), Toast.LENGTH_SHORT).show();
             }
         });
+        giftAnimLayout.setGiftAdapterAndCallBack(new GiftBarAdapter());//具体作用看GiftBarAdapter注释
         findViewById(R.id.btn_zan).setOnClickListener(this);
         findViewById(R.id.btn_gift).setOnClickListener(this);
     }
@@ -44,13 +51,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 favorLayout.addFavor();
                 break;
             case R.id.btn_gift:
-                UserInfo info = new UserInfo();
+                UserDemoInfo info = new UserDemoInfo();
                 String userId = new Random().nextInt(5) + "";
                 info.setUserId("" + userId);
                 int i = new Random().nextInt(imgs.size());
                 info.setPortraitUri("http://www.showself.com/yule/uploadfile/2016/0712/20160712060703783.jpg");
+
                 info.setName("情随事迁" + i);
-                GiftModelI model = new GiftModel(100 + i, imgs.get(i));
+                GiftModelI model = new GiftDemoModel(100 + i, imgs.get(i));
 //                giftAnimLayout.productAndShow(this, info, model);
                 giftAnimLayout.showNewGift(this, info, model);
                 break;
@@ -65,8 +73,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
       /*  imgs.add("http://img0.imgtn.bdimg.com/it/u=3224008386,3644745976&fm=23&gp=0.jpg");
         imgs.add("http://img5.imgtn.bdimg.com/it/u=3014315087,1285288972&fm=23&gp=0.jpg");
         imgs.add("https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=3663589651,1780630636&fm=23&gp=0.jpg");*/
-        imgs.add("drawable://" + R.drawable.zan_1_bear);
-        imgs.add("drawable://" + R.drawable.zan_2_cat);
+     /*   imgs.add("drawable://" + R.drawable.zan_1_bear);
+        imgs.add("drawable://" + R.drawable.zan_2_cat);*/
+        imgs.add("http://www.dabaoku.com/gif/ziran/017/046bt.gif");
+        imgs.add("http://www.showself.com/yule/uploadfile/2016/0712/20160712060703783.jpg");
+
+        imgs.add("res://" + BuildConfig.APPLICATION_ID + "/" + R.drawable.zan_4_heart);//FACEBOOK 框架支持
+        imgs.add("res://" + BuildConfig.APPLICATION_ID + "/" + R.drawable.zan_7_rabbit);//FACEBOOK 框架支持
+        imgs.add("res://" + BuildConfig.APPLICATION_ID + "/" + R.drawable.zan_9_dog);//FACEBOOK 框架支持
+
+//        imgs.add("drawable://" + R.drawable.zan_2_cat);//TODO imageloader支持
+
   /*        imgs.add("drawable://" + R.drawable.zan_3_circle);
         imgs.add("drawable://" + R.drawable.zan_4_heart);
         imgs.add("drawable://" + R.drawable.zan_5_pig);

@@ -7,7 +7,7 @@ import cn.qssq666.giftmodule.interfacei.UserInfoI;
  * Created by 情随事迁(qssq666@foxmail.com) on 2017/4/20.
  */
 
-public class UserInfo implements UserInfoI {
+public class UserDemoInfo implements UserInfoI {
     public String getName() {
         return name;
     }

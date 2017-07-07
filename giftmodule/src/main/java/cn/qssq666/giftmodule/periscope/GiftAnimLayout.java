@@ -187,13 +187,23 @@ public class GiftAnimLayout extends LinearLayout {
      * @param modelI
      */
     public void onLoadingPic(Context context, ImageView imageView, GiftModelI modelI) {
-        Log.e(TAG, "不能加载图片请自定义view并复写方法onLoadingPic " + modelI.getImage());
+        Log.e(TAG, "不能加载图片请自定义view并复写方法onLoadingPic " + modelI.getGiftImage());
 
     }
 
     public ViewGroup getGiftLayout(Context context) {
-        return (ViewGroup) LayoutInflater.from(context).inflate(R.layout.view_live_gift_bar, this, false);
+        ViewGroup giftLayout = null;
+        if (giftCallBack != null) {
+            giftLayout = giftCallBack.getGiftLayout(this);
+        }
+        if (giftLayout == null) {
+
+            return (ViewGroup) LayoutInflater.from(context).inflate(R.layout.view_live_gift_bar, this, false);
+        } else {
+            return giftLayout;
+        }
     }
+
 
     /**
      * 始终只显示一个。
@@ -266,14 +276,14 @@ public class GiftAnimLayout extends LinearLayout {
 
             }
         } else {
-            Log.d(TAG, "发现已存在图片" + giftModel.getImage() + ",加持显示中。");
+            Log.d(TAG, "发现已存在图片" + giftModel.getGiftImage() + ",加持显示中。");
             continueShow(context, userInfo, giftModel, pair);
         }
     }
 
     private void continueShow(Context context, UserInfoI userInfo, GiftModelI giftModel, Pair<GiftHolder, GiftEndRunnable> pair) {
         GiftHolder giftHolder = pair.first;
-        giftHolder.tvValue.setValue(giftCallBack == null ? 1 + giftHolder.tvValue.getValue() : giftCallBack.onRequestShowGiftCount(giftModel, giftHolder.tvValue));
+        pair.first.tvValue.setValue(getGiftCount(pair.first.tvValue, giftModel));
         giftHolder.tvValue.setText("X" + giftHolder.tvValue.getValue());//默认就是1只是第一次没显示出啦i
         final Animation animation = AnimationUtils.loadAnimation(context, R.anim.scale_anim);//字体动画
         giftHolder.tvValue.startAnimation(animation);
@@ -325,7 +335,7 @@ public class GiftAnimLayout extends LinearLayout {
         Pair<GiftHolder, GiftEndRunnable> giftViewPair = createGiftViewPair(viewGroup, key, giftModel);
         atShowMaps.put(key, giftViewPair);
         giftViewPair.first.tvName.setText("" + userInfo.getName());
-        giftViewPair.first.tvValue.setValue(giftCallBack == null ? 1 + giftViewPair.first.tvValue.getValue() : giftCallBack.onRequestShowGiftCount(giftModel, giftViewPair.first.tvValue));
+        giftViewPair.first.tvValue.setValue(getGiftCount(giftViewPair.first.tvValue, giftModel));
         giftViewPair.first.getItemView().setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -337,14 +347,18 @@ public class GiftAnimLayout extends LinearLayout {
         });
         giftViewPair.first.ivGift.setScaleType(ImageView.ScaleType.FIT_CENTER);
 
-        ImageLoader.getInstance().displayImage(userInfo.getFace(), giftViewPair.first.ivFace);
-        ImageLoader.getInstance().displayImage(giftModel.getImage(), giftViewPair.first.ivGift);
+        if (giftCallBack == null || giftCallBack.onBindPic(userInfo, giftModel, giftViewPair.first) == false) {
+
+            ImageLoader.getInstance().displayImage(userInfo.getFace(), giftViewPair.first.ivFace);
+            ImageLoader.getInstance().displayImage(giftModel.getGiftImage(), giftViewPair.first.ivGift);
+        }
+
         doShowGiftAnim(getKey(userInfo, giftModel), giftModel, giftViewPair);
     }
 
 
     public static String getKey(UserInfoI userInfo, GiftModelI giftModel) {
-        return giftModel.getImage() + userInfo.getUserId();
+        return giftModel.getGiftImage() + userInfo.getUserId();
     }
 
     /**
@@ -402,10 +416,6 @@ public class GiftAnimLayout extends LinearLayout {
 
     /**
      * 开始结束的计时，计时完毕后会产生动画
-     *
-     * @param view
-     * @param key
-     * @param giftModel
      */
   /*  private void startEndAnimRunnable(GiftHolder view, String key, GiftModelI giftModel) {
         GiftEndRunnable giftRunnable = new GiftEndRunnable(view, key);
@@ -420,6 +430,10 @@ public class GiftAnimLayout extends LinearLayout {
 //    HashMap<>
 
     Handler handler = new Handler(Looper.getMainLooper());
+
+    public int getGiftCount(StrokeTextView strokeTextView, GiftModelI model) {
+        return giftCallBack == null || model.getShowcount() == 0 ? 1 + strokeTextView.getValue() : giftCallBack.onRequestShowGiftCount(model, strokeTextView);
+    }
 
     /**
      * 礼物结束的 raunnable
@@ -477,6 +491,9 @@ public class GiftAnimLayout extends LinearLayout {
         }
     }
 
+    /**
+     * giftLayout你可以返回空 onBindPic你也可以返回空。
+     */
     public interface GiftCallBack {
         void onGiftAnimOver(GiftModelI giftModel);
 
@@ -494,9 +511,60 @@ public class GiftAnimLayout extends LinearLayout {
          * @return
          */
         int onRequestShowGiftCount(GiftModelI modelI, StrokeTextView tvValue);
+
+        /**
+         * 默认布局则可以不写，如果返回不为空，但是id必须和提供的一样必须一样否则无法进行findbyid
+         *
+         * @param giftAnimLayout
+         * @return
+         */
+        ViewGroup getGiftLayout(GiftAnimLayout giftAnimLayout);
+
+        /**
+         * 是否自己绑定图片，自己绑定则返回false
+         *
+         * @param userInfo
+         * @param giftModel
+         * @param giftHolder
+         * @return
+         */
+        boolean onBindPic(UserInfoI userInfo, GiftModelI giftModel, GiftHolder giftHolder);
     }
 
-    public void setGiftCallBack(GiftCallBack giftCallBack) {
+    /**
+     * 默认布局的构造
+     */
+    public static abstract class DefaultCallBack implements GiftCallBack {
+        /**
+         * 默认布局
+         *
+         * @param giftAnimLayout
+         * @return
+         */
+        @Override
+        public ViewGroup getGiftLayout(GiftAnimLayout giftAnimLayout) {
+            return null;
+        }
+
+        /**
+         * 自己维护
+         *
+         * @param modelI
+         * @param tvValue
+         * @return
+         */
+        @Override
+        public int onRequestShowGiftCount(GiftModelI modelI, StrokeTextView tvValue) {
+            return 0;
+        }
+
+        @Override
+        public boolean onBindPic(UserInfoI userInfo, GiftModelI giftModel, GiftHolder first) {
+            return false;//自己的Imageloader绑定吧。
+        }
+    }
+
+    public void setGiftAdapterAndCallBack(GiftCallBack giftCallBack) {
         this.giftCallBack = giftCallBack;
     }
 

@@ -7,11 +7,11 @@ import cn.qssq666.giftmodule.interfacei.GiftModelI;
  * Created by 情随事迁(qssq666@foxmail.com) on 2017/4/20.
  */
 
-public class GiftModel implements GiftModelI {
-    public GiftModel() {
+public class GiftDemoModel implements GiftModelI {
+    public GiftDemoModel() {
     }
 
-    public GiftModel(int money, String img) {
+    public GiftDemoModel(int money, String img) {
         this.money = money;
         this.image = img;
     }
@@ -25,9 +25,15 @@ public class GiftModel implements GiftModelI {
     }
 
 
-    public String getImage() {
-        return image;
+    public void setImage(String image) {
+        this.image = image;
     }
+
+    @Override
+    public String getGiftImage() {
+        return getImage();
+    }
+
 
     public int getId() {
         return id;
@@ -48,6 +54,11 @@ public class GiftModel implements GiftModelI {
     public int money;
     public String title;
     public int id;
+
+    public String getImage() {
+        return image;
+    }
+
     public String image;
     public String unit;
 
@@ -84,7 +95,7 @@ public class GiftModel implements GiftModelI {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        GiftModel giftModel = (GiftModel) o;
+        GiftDemoModel giftModel = (GiftDemoModel) o;
 
         return id == giftModel.id;
 
