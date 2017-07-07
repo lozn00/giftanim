@@ -1,6 +1,8 @@
 
 
 
+![演示图片地址](https://github.com/qssq/giftanim/blob/master/Pictures/1.gif)
+
 ![演示图片地址](https://github.com/qssq/giftanim/blob/master/Pictures/anim.gif)
 
 #Live giftanim 经典的直播礼物动画 你值得拥有！
@@ -20,7 +22,8 @@
 
 
 对外方法 
-
+支持设置自定义布局
+支持设置自定义图片加载框架 主要针对某些图片。
 setOnGiftBarClick 监听bar点击事件可以获取用户信息和被点击礼物。
 setMaxShowCount 可控制最大显示多少条，也就是后面的将会排队等待。
 setShowDuration 控制一个礼物的显示时间
