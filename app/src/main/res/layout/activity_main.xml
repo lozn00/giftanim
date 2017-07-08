@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorAccent"
+    tools:context="cn.qssq666.giftanim.MainActivity">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/girl" />
+
+    <View
+        android:id="@+id/line"
+        android:layout_width="match_parent"
+
+        android:layout_height="1dp"
+        android:layout_centerVertical="true" />
+
+    <cn.qssq666.giftmodule.periscope.GiftAnimLayout
+        android:id="@+id/giftlayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/line"></cn.qssq666.giftmodule.periscope.GiftAnimLayout>
+
+
+    <cn.qssq666.giftmodule.periscope.FavorLayout
+        android:id="@+id/favorlayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+
+        android:layout_marginLeft="@dimen/theme_margin"
+        android:layout_marginTop="@dimen/theme_margin" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true">
+
+        <Button
+            android:id="@+id/btn_gift1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="礼1" />
+
+        <Button
+            android:id="@+id/btn_gift2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="礼2" />
+
+        <Button
+            android:id="@+id/btn_gift3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="礼3" />
+
+        <Button
+            android:id="@+id/btn_gift4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="礼4" />
+
+        <Button
+            android:id="@+id/btn_gift_random"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="随机" />
+
+        <Button
+            android:id="@+id/btn_zan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="horizontal"
+            android:text="赞" />
+    </LinearLayout>
+
+
+</RelativeLayout>
