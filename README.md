@@ -6,158 +6,208 @@
 ![演示图片地址](https://github.com/qssq/giftanim/blob/master/Pictures/anim.gif)
 
 #Live giftanim 经典的直播礼物动画 你值得拥有！
-送赞送礼物动画 仿映客礼物侧栏动画效果，2016年的老东西了，老板都删除直播功能了，就分享给大家了。。
+
+集成起来非常简单
+
+布局定位到与与一条线对齐并包裹内容，或者外面嵌套一个帧布局然后底部对齐也是可以的。
+`
+
+		   <cn.qssq666.giftmodule.periscope.GiftAnimLayout
+		        android:id="@+id/giftlayout"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:layout_above="@+id/line"></cn.qssq666.giftmodule.periscope.GiftAnimLayout>
+
+
+`
 
 
 
-支持礼物动画 x1 x2 x3
-支持自己维护x1 x2 x3
-支持扩展 ，简单的布局动画用户轻松扩展
-简单的接口实现 giftmodel userinfo,用户轻松解耦，
 
 
-支持用户uersid和图片保持排斥以解决应该x1不。
 
-包含点赞动画和 送礼物侧拉动画。
-
-
-对外方法 
-支持设置自定义布局
-支持设置自定义图片加载框架 主要针对某些图片。
-setOnGiftBarClick 监听bar点击事件可以获取用户信息和被点击礼物。
-setMaxShowCount 可控制最大显示多少条，也就是后面的将会排队等待。
-setShowDuration 控制一个礼物的显示时间
-showNewGift 显示一个礼物 传递context,userinfo,giftmodel 的实现类
-setGiftCallBack 可以实现高度定置化 
-```
-   public interface GiftCallBack {
-        void onGiftAnimOver(GiftModelI giftModel);
-
-        void onConvertGiftAnim(GiftModelI giftModel);
-
-        void onAddNewGift(GiftModelI giftModel);
-
-        void onAddWaitUnique(GiftModelI giftModel);
-
-        /**
-         * 如果礼物的值是从其他地方维护的，
-         *
-         * @param modelI
-         * @param tvValue
-         * @return
-         */
-        int onRequestShowGiftCount(GiftModelI modelI, StrokeTextView tvValue);
-    }
+您可以完全不用设置，也可以设置，
 
 
-功能扩展
- 自己维护显示x1 x2 解决实际需求 进入房间后是从自定位置开始问题。
- 比如实现giftmodelI接口 并创建一个showcount字段 来自服务器， 在 结束礼物的时候  onGiftAnimOver重置总数为0 用户发送一个礼物模型json应该为1 ，
-   favorLayout = ((FavorLayout) findViewById(R.id.favorlayout));
 
-        giftAnimLayout = ((GiftAnimLayout) findViewById(R.id.giftlayout));
-        giftAnimLayout.setOnGiftBarClick(new GiftAnimLayout.OnGiftBarClick() {
+`
+
+       giftAnimLayout.setOnGiftBarClick(new GiftAnimLayout.OnGiftBarClick() {
             @Override
             public void onClick(UserInfoI userInfo) {
                 Toast.makeText(MainActivity.this, "你点击了" + userInfo.getName(), Toast.LENGTH_SHORT).show();
             }
         });
-        findViewById(R.id.btn_zan).setOnClickListener(this);
-        findViewById(R.id.btn_gift).setOnClickListener(this);
-        
-        
-            @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.btn_zan://纯粹点赞 
-               favorLayout.addFavor();
-                break;
-            case R.id.btn_gift://某某送礼物 
-             UserInfo info = new UserInfo();
-                String userId = new Random().nextInt(5) + "";
-                info.setUserId("" + userId);
-                int i = new Random().nextInt(imgs.size());
-                info.setName("情随事迁" + i);
-                GiftModel model = new GiftModel(100 + i, imgs.get(i));
-//                giftAnimLayout.productAndShow(this, info, model);
-                giftAnimLayout.showNewGift(this, info, model);
-                break;
+        giftAnimLayout.setGiftAdapterAndCallBack(new GiftBarAdapter());//具体作用看GiftBarAdapter注释
+        giftAnimLayout.setMaxShowCount(3);
+        giftAnimLayout.setHidenAnim(R.anim.follow_anim_from_left_vertical_hidden);//  giftAnimLayout.setHidenAnim(R.anim.follow_anim_from_left_to_right_hidden);
+        giftAnimLayout.setShowDuration(6000);
+        giftAnimLayout.setThanMaxWait(false);//
 
 
-        }
-    }
-```
-送礼动画布局
-```
-   <cn.qssq666.giftanim.periscope.GiftAnimLayout
-        android:id="@+id/giftlayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"></cn.qssq666.giftanim.periscope.GiftAnimLayout>
+`
 
+
+首先项目是2016年写的，后面都废弃了 最近又做直播了，但是我发现我这个东西还有很多bug,经过修修改改，终于达到了我想要的效果。 代码实现也比较简单。
+另外我感觉开源是我继续敲代码的动力，希望各位多多点赞，让更多人知道  力图最简单的方式 最快的速度实现需求 简单易懂方便扩展和抽取 是我的目标 和理想。
+
+
+
+
+上面所有的方法都不是必须填写的  都默认已经调整好。
+
+支持礼物动画 x1 x2 x3 缩放效果
+
+支持自定义 显示动画 和移除动画  移除动画已经上了例子。
+
+支持自己维护x1 x2 x3
+
+支持最新礼物自动插底显示  2017-07-09 完工
+
+支持礼物总数爆表压力测试，将自动排队 
+
+确保所有礼物执行完毕
+
+支持交叉显示动画  已显示的又收到了和另外一个已显示交叉位置 2017-07-09 完工
   
+支持view缓存  2017-07-09 完工
+
+支持自定义布局扩展
+
+支持自定义图片加载方式  2017-07-08完工
+
+支持扩展 ，简单的布局动画用户轻松扩展
+
+简单的接口实现 giftmodel userinfo,用户轻松解耦，
+
+唯一标识 是由userInfo的getUserid+礼物地址组成
+
+
+setGiftAdapterAndCallBack 可以实现高度定置化 
+
+
+
+
+
+
 
 
 ```
+
+
 点赞动画布局
-```
-  cn.qssq666.giftanim.periscope.FavorLayout
-        android:id="@+id/favorlayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginLeft="@dimen/theme_margin"
-        android:layout_marginTop="@dimen/theme_margin" />
- ```
- demo布局
- ```
- <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/colorAccent"
-    tools:context="cn.qssq666.giftanim.MainActivity">
+
+`			
+			
+			  cn.qssq666.giftanim.periscope.FavorLayout
+			        android:id="@+id/favorlayout"
+			        android:layout_width="match_parent"
+			        android:layout_height="match_parent"
+			        android:layout_marginLeft="@dimen/theme_margin"
+			        android:layout_marginTop="@dimen/theme_margin" />
+			
+			
+`
+
+触发点赞代码逻辑
+
+`
+
+ 	  favorLayout.addFavor();
+
+`
 
 
-    <cn.qssq666.giftanim.periscope.GiftAnimLayout
-        android:id="@+id/giftlayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"></cn.qssq666.giftanim.periscope.GiftAnimLayout>
-
-    <cn.qssq666.giftanim.periscope.FavorLayout
-        android:id="@+id/favorlayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginLeft="@dimen/theme_margin"
-        android:layout_marginTop="@dimen/theme_margin" />
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_margin="@dimen/theme_margin"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/btn_zan"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="赞" />
-
-        <Button
-            android:id="@+id/btn_gift"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="礼物" />
-
-    </LinearLayout>
+礼物动画定制化演示
 
 
-</RelativeLayout>
 
-```
- 所以说我这个还是很简单的啦
- 
- 2017年6月22日 16:53:25
- 抽成 模块 并把礼物抽成接口。 方便定制。
+
+				  
+				public class GiftBarAdapter implements GiftAnimLayout.GiftCallBack {
+				
+				
+				    private static final String TAG = "GiftBarAdapter";
+				
+				    @Override
+				    public void onGiftAnimOver(GiftModelI giftModel) {
+				        ((GiftDemoModel) giftModel).setShowcount(0);//如果是0则会直接设置为1的
+				        Log.w(TAG, "onGiftAnimOver:" + giftModel);
+				    }
+				
+				    @Override
+				    public void onFindExistGiftAnim(GiftModelI giftModel) {
+				//                ((GiftModel) giftModel).setShowcount(1);
+				        Log.w(TAG, "onFindExistGiftAnim:" + giftModel);
+				
+				    }
+				
+				    @Override
+				    public void onAddNewGift(GiftModelI giftModel) {
+				        Log.w(TAG, "onAddNewGift:" + giftModel);
+				
+				    }
+				
+				    @Override
+				    public void onAddWaitUnique(GiftModelI giftModel) {
+				        Log.w(TAG, "onAddWaitUnique:" + giftModel);
+				
+				    }
+				
+				    @Override
+				    public int onRequestShowGiftCount(GiftModelI modelI, StrokeTextView tvValue) {
+				        int showcount = ((GiftDemoModel) modelI).getShowcount();//如果一直返回0还是由内部支持
+				//                showcount = showcount == 0 ? tvValue.getValue() + 1 : showcount;
+				        Log.w(TAG, "onRequestShowGiftCount :showCount:" + showcount);
+				//                showcount = showcount == 0 ? tvValue.getValue() + 1 : showcount;
+				        return showcount;
+				    }
+				
+				    @Override
+				    public ViewGroup getGiftLayout(GiftAnimLayout giftAnimLayout) {
+				        //返回null表示内部本来就有的那个
+				        return (ViewGroup) LayoutInflater.from(giftAnimLayout.getContext()).inflate(R.layout.view_live_gift_bar_prescro, giftAnimLayout, false);
+				    }
+				
+				    /**
+				     * 返回false表明内部进行绑定图片 那么这里就没必要再进行处理了。但是这里要维护的话头像也给维护了哈!
+				     *
+				     * @param userInfo
+				     * @param giftModel
+				     * @param giftHolder
+				     * @return
+				     */
+				    @Override
+				    public boolean onBindPic(UserInfoI userInfo, GiftModelI giftModel, GiftAnimLayout.GiftHolder giftHolder) {
+				        ImageLoader.getInstance().displayImage(userInfo.getFace(), giftHolder.ivFace);
+				        Uri uri = Uri.parse("" + giftModel.getGiftImage());
+				   /*
+				        com.facebook.drawee.view.SimpleDraweeView
+				                draweeView = (SimpleDraweeView) giftHolder.ivGift;
+				        draweeView.setAspectRatio(1);
+				        draweeView.setImageURI(uri);
+				*/
+				
+				
+				        SimpleDraweeView draweeView = (SimpleDraweeView) giftHolder.ivGift;
+				        draweeView.setAspectRatio(1);
+				        DraweeController draweeController =
+				                Fresco.newDraweeControllerBuilder()
+				                        .setUri(uri)
+				                        .setAutoPlayAnimations(true) // 设置加载图片完成后是否直接进行播放
+				                        .build();
+				        draweeView.setController(draweeController);
+				        return true;
+				    }
+				}
+
+
+
+上面的注释很清楚了。默认的imageloader已经维护好加载了，如果要gift动画 那么就是上面的例子效果了。
+
+
+  实际上demo的代码已经设置好了adapterAndCallBack 您也可以完全不用设置，然后跑跑代码 也没毛病。 哈哈。
+
+自定义布局 等 就是new一个 callback 
+
+    giftAnimLayout.setGiftAdapterAndCallBack(new GiftBarAdapter());//具体作用看GiftBarAdapter注释
