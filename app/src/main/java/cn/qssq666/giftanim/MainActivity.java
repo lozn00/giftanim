@@ -47,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         giftAnimLayout.setMaxShowCount(3);
         giftAnimLayout.setHidenAnim(R.anim.follow_anim_from_left_vertical_hidden);
 //        giftAnimLayout.setHidenAnim(R.anim.follow_anim_from_left_to_right_hidden);
-        giftAnimLayout.setShowDuration(4000);
+        giftAnimLayout.setShowDuration(6000);
         giftAnimLayout.setThanMaxWait(false);//
         findViewById(R.id.btn_zan).setOnClickListener(this);
         findViewById(R.id.btn_gift_random).setOnClickListener(this);

@@ -365,49 +365,25 @@ public class GiftAnimLayout extends LinearLayout {
             synchronized (waitList) {
                 if (maxShowCount > 0 && getChildCount() >= maxShowCount) {
 
-                    if (thanMaxWait) {
-                        waitList.addUnique(UserInfoPair.create(userInfo, giftModel));
-                        if (giftCallBack != null) {
-                            giftCallBack.onAddWaitUnique(giftModel);
-                        }
 
-                    } else {//超过了赶快改第一个显示view的时间为马上消失
+                    if (!thanMaxWait) {
+                        //超过了赶快改第一个显示view的时间为马上消失
                         View childAt = getChildAt(0);
                         String tag = (String) childAt.getTag(R.id.gift_bar_view_key);
-                        if (tag == null) {
-                            Log.e(TAG, "错误,找不到key,无法产生移除view动画");
-
-                        } else {
-
-                            Pair<GiftHolder, GiftEndRunnable> giftHolderGiftEndRunnablePair = atShowMaps.get(tag);
-                            Log.w(TAG, "队列数据过多，进行等待 那么能找到第一个标签吗? " + tag + "," + giftHolderGiftEndRunnablePair);
-                            if (giftHolderGiftEndRunnablePair != null) {
-                                GiftAnimLayout.this.removeCallbacks(giftHolderGiftEndRunnablePair.second);
-                                GiftAnimLayout.this.post(giftHolderGiftEndRunnablePair.second);
-                                GiftAnimLayout.this.postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        if (getChildCount() < maxShowCount) {
-                                            if (giftCallBack != null) {
-                                                giftCallBack.onAddNewGift(giftModel);
-                                            }
-                                            Log.w(TAG, "队列数据过多终于不饱和了,开始插入动画并显示。");
-                                            productAndShow(context, userInfo, giftModel);
-                                        } else {
-                                            Log.w(TAG, "队列数据过多，依然还在等待");
-                                            postDelayed(this, 200);
-                                        }
-                                    }
-                                }, 200);
-
-                            } else {
-                                productAndShow(context, userInfo, giftModel);
-                            }
-
-
+                        Pair<GiftHolder, GiftEndRunnable> giftHolderGiftEndRunnablePair = atShowMaps.get(tag);
+                        Log.w(TAG, "尝试加速消失 " + tag + "," + giftHolderGiftEndRunnablePair);
+                        if (giftHolderGiftEndRunnablePair != null) {
+                            GiftAnimLayout.this.removeCallbacks(giftHolderGiftEndRunnablePair.second);
+                            GiftAnimLayout.this.post(giftHolderGiftEndRunnablePair.second);
                         }
 
                     }
+
+                    waitList.addUnique(UserInfoPair.create(userInfo, giftModel));
+                    if (giftCallBack != null) {
+                        giftCallBack.onAddWaitUnique(giftModel);
+                    }
+
                 } else {
                     if (giftCallBack != null) {
                         giftCallBack.onAddNewGift(giftModel);
