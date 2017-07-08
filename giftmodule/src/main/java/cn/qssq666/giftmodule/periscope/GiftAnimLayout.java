@@ -28,8 +28,6 @@ import android.animation.AnimatorSet;
 import android.animation.LayoutTransition;
 import android.animation.ObjectAnimator;
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.v4.util.Pair;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -48,6 +46,7 @@ import android.widget.TextView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import cn.qssq666.giftmodule.R;
 import cn.qssq666.giftmodule.holder.BaseViewHolderI;
@@ -70,14 +69,53 @@ import cn.qssq666.giftmodule.util.DensityUtil;
  */
 public class GiftAnimLayout extends LinearLayout {
     private static final String TAG = "GiftAnimLayout";
-    private ArrayList<ImageView> singInstanceImageView = new ArrayList<>();
 
+    //    Handler handler = new Handler(Looper.getMainLooper());
+    private ArrayList<ImageView> singInstanceImageView = new ArrayList<>();
+    private boolean mLayoutAniming;
+    /**
+     * 用来记录布局动画的结束时间 结束之后时间上海有一段时间需要错开 否则返回点击就出毛病了。
+     */
+    private long mCurrentLayoutAnimEndTime;
+    //如果过短会导致重复执行 礼物过多的时候出现一点小毛病。  多个礼物交叉位置的时候 如果出现了一点小问题 那么数值再改大一点哈。
+    private long mLayoutAnimTime = 600;
+
+    /**
+     * 默认是 飞快的从左边到右边移除掉,你可以更改为另外一个默认为从左边到右边消失的动画
+     *
+     * @param hidenAnim 传递 R.anim资源  默认可以不传递
+     * @R.anim.follow_anim_from_left_vertical_hidden,R.anim.follow_anim_from_left_to_right_hidden}
+     */
+    public void setHidenAnim(int hidenAnim) {
+        this.mHidenAnim = hidenAnim;
+    }
+
+    /**
+     * 你可以自己设定礼物bar从左边到横栏的显示效果
+     *
+     * @param showAnim
+     */
+    public void setShowAnim(int showAnim) {
+        this.mSHowAnim = showAnim;
+    }
+
+    /**
+     *
+     */
+    private int mSHowAnim = R.anim.follow_anim_from_left_to_center;
+    private int mHidenAnim = R.anim.follow_anim_from_left_to_right_hidden;
+
+    /**
+     * 单位 毫秒
+     *
+     * @param showDuration
+     */
     public void setShowDuration(int showDuration) {
         this.showDuration = showDuration;
     }
 
     /**
-     * 由图片和id组成保证唯一 、3秒显示
+     * 、3秒显示
      */
     public int showDuration = 4200;
 
@@ -92,7 +130,7 @@ public class GiftAnimLayout extends LinearLayout {
     public int marginTop = 12;//dp
 
     /**
-     * 单位 dp
+     * 单位 dp 举例左边的举例
      *
      * @param marginLeft
      */
@@ -102,15 +140,32 @@ public class GiftAnimLayout extends LinearLayout {
 
     public int marginLeft = 10;//dp
     /**
-     * 这是正在动画中处理的.
+     * 这是代表当前正在显示并缓存的. 这个和那个没关系似乎这个是作废的。设置
      */
-    private int mMaxCacheViewCount = 10;
-    private LruCache<String, Pair<GiftHolder, GiftEndRunnable>> atShowMaps = new LruCache<String, Pair<GiftHolder, GiftEndRunnable>>(mMaxCacheViewCount) {//正在显示的礼物队列
+    private LruCache<String, Pair<GiftHolder, GiftEndRunnable>> atShowMaps = new LruCache<String, Pair<GiftHolder, GiftEndRunnable>>(100) {//这顶多100个。
+
         @Override
         protected int sizeOf(String key, Pair<GiftHolder, GiftEndRunnable> value) {
             return super.sizeOf(key, value);//默认就是1
         }
     };
+
+    /**
+     * 用于建设Layout.from infalte的次数， 当每一轮动画结束了，这里面都应该换成了几个。不缓存设置为0
+     *
+     * @param cacheViewCount
+     */
+    public void setCacheVewCount(int cacheViewCount) {
+        this.mCacheVewCount = cacheViewCount;
+    }
+
+    /**
+     * 如果开启了只显示指定总数不进行队列的话,那么缓存的个数估计也就只需要几个来着 最多显示4个，那么当一个view结束了,新的进来应该就能从里面找出来。
+     */
+    private int mCacheVewCount = 8;
+    private List<ViewGroup> mCacheViews = new ArrayList<>();
+
+
     /**
      * 这是新的动画产生了,但是当前超过了最大值 所存放的容器
      */
@@ -162,6 +217,7 @@ public class GiftAnimLayout extends LinearLayout {
     }
 
     /**
+     * 这个作废了。。
      * 永远只显示一个礼物
      *
      * @param context
@@ -179,6 +235,22 @@ public class GiftAnimLayout extends LinearLayout {
         onLoadingPic(context, imageView, giftModel);
     }
 
+
+    @Override
+    public void startViewTransition(View view) {
+        super.startViewTransition(view);
+        mLayoutAniming = true;
+//        Log.w(TAG, "布局动画开始");
+    }
+
+    @Override
+    public void endViewTransition(View view) {
+        super.endViewTransition(view);
+        mLayoutAniming = false;
+        mCurrentLayoutAnimEndTime = System.currentTimeMillis();
+//        Log.w(TAG, "布局动画完毕");
+    }
+
     /**
      * 必须实现 否则不显示图片
      *
@@ -186,12 +258,22 @@ public class GiftAnimLayout extends LinearLayout {
      * @param imageView
      * @param modelI
      */
-    public void onLoadingPic(Context context, ImageView imageView, GiftModelI modelI) {
+    private void onLoadingPic(Context context, ImageView imageView, GiftModelI modelI) {
         Log.e(TAG, "不能加载图片请自定义view并复写方法onLoadingPic " + modelI.getGiftImage());
 
     }
 
     public ViewGroup getGiftLayout(Context context) {
+
+        if (mCacheViews.size() > 0) {
+            synchronized (mCacheViews) {
+                ViewGroup viewGroup = mCacheViews.get(0);
+                mCacheViews.remove(viewGroup);
+                if (viewGroup.getParent() != null) {//TODO出现了一点毛病，竟然有概率出现已经被添加的情况了，所以加个判断暂时减轻了这个问题 不过 为什么锁都锁不住呢
+                    return viewGroup;
+                }
+            }
+        }
         ViewGroup giftLayout = null;
         if (giftCallBack != null) {
             giftLayout = giftCallBack.getGiftLayout(this);
@@ -212,7 +294,7 @@ public class GiftAnimLayout extends LinearLayout {
      */
 
     public void doAnimationSingInstance(final Context context) {
-        final Animation animation = AnimationUtils.loadAnimation(context, R.anim.follow_anim_from_left_to_center);//从左边到中间的动画。
+        final Animation animation = AnimationUtils.loadAnimation(context, mSHowAnim);//从左边到中间的动画。
         if (singInstanceImageView.size() <= 0 || animationing) {
             return;
         }
@@ -257,15 +339,74 @@ public class GiftAnimLayout extends LinearLayout {
      * @param userInfo
      * @param giftModel
      */
-    public void showNewGift(final Context context, UserInfoI userInfo, final GiftModelI giftModel) {
+    public void showNewGift(final Context context, final UserInfoI userInfo, final GiftModelI giftModel) {
+        //这里的时间判断 是解决 队列重新调整 礼物过来 礼物动画还没有执行完毕那么会出现一些比较丑陋的情况 ，把时间差调节越大那么久出现尴尬的情况几率就越少。
+        long l = System.currentTimeMillis();
+        Log.w(TAG, "布局动画执行时间:" + (l - mCurrentLayoutAnimEndTime) + "," + l);
+        if (mLayoutAniming || System.currentTimeMillis() - mCurrentLayoutAnimEndTime < mLayoutAnimTime) {
+            Log.w(TAG, "布局动画尚未结束 进行循环等待中..");
+            postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (mLayoutAniming || System.currentTimeMillis() - mCurrentLayoutAnimEndTime < mLayoutAnimTime) {
+                        postDelayed(this, 200);
+                    } else {
+                        Log.w(TAG, "布局动画等待结束了开始新的礼物动画.");
+                        showNewGift(context, userInfo, giftModel);
+                    }
+                }
+            }, 200);
+            return;
+        }
+
         Pair<GiftHolder, GiftEndRunnable> pair = atShowMaps.get(getKey(userInfo, giftModel));
 
         if (pair == null) {
             synchronized (waitList) {
                 if (maxShowCount > 0 && getChildCount() >= maxShowCount) {
-                    waitList.addUnique(UserInfoPair.create(userInfo, giftModel));
-                    if (giftCallBack != null) {
-                        giftCallBack.onAddWaitUnique(giftModel);
+
+                    if (thanMaxWait) {
+                        waitList.addUnique(UserInfoPair.create(userInfo, giftModel));
+                        if (giftCallBack != null) {
+                            giftCallBack.onAddWaitUnique(giftModel);
+                        }
+
+                    } else {//超过了赶快改第一个显示view的时间为马上消失
+                        View childAt = getChildAt(0);
+                        String tag = (String) childAt.getTag(R.id.gift_bar_view_key);
+                        if (tag == null) {
+                            Log.e(TAG, "错误,找不到key,无法产生移除view动画");
+
+                        } else {
+
+                            Pair<GiftHolder, GiftEndRunnable> giftHolderGiftEndRunnablePair = atShowMaps.get(tag);
+                            Log.w(TAG, "队列数据过多，进行等待 那么能找到第一个标签吗? " + tag + "," + giftHolderGiftEndRunnablePair);
+                            if (giftHolderGiftEndRunnablePair != null) {
+                                GiftAnimLayout.this.removeCallbacks(giftHolderGiftEndRunnablePair.second);
+                                GiftAnimLayout.this.post(giftHolderGiftEndRunnablePair.second);
+                                GiftAnimLayout.this.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        if (getChildCount() < maxShowCount) {
+                                            if (giftCallBack != null) {
+                                                giftCallBack.onAddNewGift(giftModel);
+                                            }
+                                            Log.w(TAG, "队列数据过多终于不饱和了,开始插入动画并显示。");
+                                            productAndShow(context, userInfo, giftModel);
+                                        } else {
+                                            Log.w(TAG, "队列数据过多，依然还在等待");
+                                            postDelayed(this, 200);
+                                        }
+                                    }
+                                }, 200);
+
+                            } else {
+                                productAndShow(context, userInfo, giftModel);
+                            }
+
+
+                        }
+
                     }
                 } else {
                     if (giftCallBack != null) {
@@ -281,19 +422,141 @@ public class GiftAnimLayout extends LinearLayout {
         }
     }
 
+    /**
+     * 超过了最大显示是否等待 等待的意思是让每一个view显示的时间都市公平的， 比如有人一直送礼物那么他是没法顶下去的，只有当礼物总数小于了指定数的时候才开始插入因为显示屏超过了最大值被等待队列的礼物，如果传递false,那么尽可能的执行完动画，直接把显示礼物时间调零并马上执行隐藏移除动画。
+     *
+     * @param thanMaxWait
+     */
+    public void setThanMaxWait(boolean thanMaxWait) {
+        this.thanMaxWait = thanMaxWait;
+    }
+
+    private boolean thanMaxWait = false;
+
+
+    public void acrossAnim(final View view, final View to, float startX, final float startY, float endX, final float endY, final int i) {
+//        view.setY(startY);//动画完成后该回去
+        removeView(view);
+        addView(view);
+
+//        to.setY(endY);
+        removeView(to);
+        addView(to, i);
+    /*    Log.w(TAG, "view,TAG" + view.getTag(R.id.across_ing) + "," + this.hashCode());
+        if (view.getTag(R.id.across_ing) != null) {
+            Log.w(TAG, "动画中");
+            return;
+        }
+        if (to.getTag(R.id.across_ing) != null) {
+            Log.w(TAG, "动画中");
+            return;
+        }
+   *//*     if (view.getAnimation() != null && !view.getAnimation().hasEnded()) {
+            return;
+        }
+        if (to.getAnimation() != null && !to.getAnimation().hasEnded()) {
+            return;
+        }
+        view.clearAnimation();
+        to.clearAnimation();*//*
+        Log.w(TAG, "starty:" + startY + ",endY:" + endY);
+        // 属性动画移动
+        ObjectAnimator y = ObjectAnimator.ofFloat(view, "y", endY);
+//        ObjectAnimator x = ObjectAnimator.ofFloat(view, "x", endX);
+//        ObjectAnimator x1 = ObjectAnimator.ofFloat(to, "x", startX);
+        ObjectAnimator x2 = ObjectAnimator.ofFloat(to, "y", startY);
+        AnimatorSet animatorSet = new AnimatorSet();
+        animatorSet.setDuration(300);
+        animatorSet.playTogether(y, x2);//2geview进行交叉 endXhe endY是作用在前者
+        animatorSet.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                view.clearAnimation();
+                view.setY(startY);//动画完成后该回去
+                removeView(view);
+                addView(view);
+
+                to.setY(endY);
+                removeView(to);
+                addView(to, i);
+
+                Log.w(TAG, "交叉动画结束了," + view);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+      *//*          view.setTag(R.id.across_ing, null);
+                to.setTag(R.id.across_ing, null);*//*
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+        view.setTag(R.id.across_ing, true);
+        to.setTag(R.id.across_ing, true);
+        animatorSet.start();*/
+
+    }
+
+    public void acrossRemoveAndToAddAnim(View view, View toView, int i) {
+        acrossAnim(view, toView, view.getX(), view.getY(), toView.getX(), toView.getY(), i);
+
+
+      /*  Animation animation = AnimationUtils.loadAnimation(view.getContext(), R.anim.across_anim);
+        animation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        view.startAnimation(animation);*/
+//        this.removeView(view);
+//        this.addView(giftHolder.getItemView());
+    }
+
     private void continueShow(Context context, UserInfoI userInfo, GiftModelI giftModel, Pair<GiftHolder, GiftEndRunnable> pair) {
+
         GiftHolder giftHolder = pair.first;
+
         pair.first.tvValue.setValue(getGiftCount(pair.first.tvValue, giftModel));
         giftHolder.tvValue.setText("X" + giftHolder.tvValue.getValue());//默认就是1只是第一次没显示出啦i
         final Animation animation = AnimationUtils.loadAnimation(context, R.anim.scale_anim);//字体动画
         giftHolder.tvValue.startAnimation(animation);
-        handler.removeCallbacks(pair.second);
+        this.removeCallbacks(pair.second);
         pair.first.getItemView().clearAnimation();
+
         postDelayExecuteRunnable(pair.second, showDuration);
+
+        int childCount = this.getChildCount();
+        int i = this.indexOfChild(giftHolder.getItemView());
+        if (i != childCount - 1) {
+            View childAt = this.getChildAt(childCount - 1);
+            acrossRemoveAndToAddAnim(giftHolder.getItemView(), childAt, i);
+        } else {
+            Log.w(TAG, "是最后一个,starty:" + giftHolder.getItemView().getY());
+        }
+
 
        /* if (tag != null && tag instanceof GiftEndRunnable) {
             if (giftCallBack != null) {
-                giftCallBack.onConvertGiftAnim(giftModel);
+                giftCallBack.onFindExistGiftAnim(giftModel);
             }
             pair.clearAnimation();
             GiftEndRunnable runnable = (GiftEndRunnable) tag;//少创建了一个runnable对象。。
@@ -330,8 +593,9 @@ public class GiftAnimLayout extends LinearLayout {
         layoutParams.gravity = Gravity.LEFT;
         layoutParams.leftMargin = DensityUtil.dip2px(context, marginLeft);
         layoutParams.topMargin = DensityUtil.dip2px(context, marginTop);
-        addView(viewGroup, 0, layoutParams);//插入到视图中去
+        addView(viewGroup, layoutParams);//插入到视图中去
         String key = getKey(userInfo, giftModel);
+        viewGroup.setTag(R.id.gift_bar_view_key, key);
         Pair<GiftHolder, GiftEndRunnable> giftViewPair = createGiftViewPair(viewGroup, key, giftModel);
         atShowMaps.put(key, giftViewPair);
         giftViewPair.first.tvName.setText("" + userInfo.getName());
@@ -341,7 +605,7 @@ public class GiftAnimLayout extends LinearLayout {
             public void onClick(View v) {
                 if (onGiftBarClick != null) {
                     onGiftBarClick.onClick(userInfo);
-                    Log.d(TAG, "点击了 某个送花item" + userInfo.getName());
+                    Log.w(TAG, "点击了 某个送花item" + userInfo.getName());
                 }
             }
         });
@@ -424,12 +688,11 @@ public class GiftAnimLayout extends LinearLayout {
     }
 */
     public void postDelayExecuteRunnable(Runnable runnable, int time) {
-        handler.removeCallbacks(runnable);
-        handler.postDelayed(runnable, time);
+        this.removeCallbacks(runnable);
+        this.postDelayed(runnable, time);
     }
 //    HashMap<>
 
-    Handler handler = new Handler(Looper.getMainLooper());
 
     public int getGiftCount(StrokeTextView strokeTextView, GiftModelI model) {
         return giftCallBack == null || model.getShowcount() == 0 ? 1 + strokeTextView.getValue() : giftCallBack.onRequestShowGiftCount(model, strokeTextView);
@@ -461,7 +724,7 @@ public class GiftAnimLayout extends LinearLayout {
         public void run() {
             Log.d(TAG, "GiftEndRunnable计时已完成,开始收尾处理,已移除动画图片" + key);
             //进行移除view的动画
-            final Animation animation = AnimationUtils.loadAnimation(getContext(), R.anim.follow_anim_from_left_to_right_hidden);////follow_anim_from_left_to_right_hidden follow_anim_from_left_vertical_hidden
+            final Animation animation = AnimationUtils.loadAnimation(getContext(), mHidenAnim);////follow_anim_from_left_to_right_hidden follow_anim_from_left_vertical_hidden
             giftHolder.getItemView().clearAnimation();
             animation.setAnimationListener(new Animation.AnimationListener() {
                                                @Override
@@ -497,10 +760,20 @@ public class GiftAnimLayout extends LinearLayout {
     public interface GiftCallBack {
         void onGiftAnimOver(GiftModelI giftModel);
 
-        void onConvertGiftAnim(GiftModelI giftModel);
+        /**
+         * 如果正在显示 也就是在atShow集合裏面就hui会回调。
+         *
+         * @param giftModel
+         */
+        void onFindExistGiftAnim(GiftModelI giftModel);
 
         void onAddNewGift(GiftModelI giftModel);
 
+        /**
+         * 如果调用了 {@link GiftAnimLayout#setThanMaxWait(boolean)} 为false那么这个永远不会执行。
+         *
+         * @param giftModel
+         */
         void onAddWaitUnique(GiftModelI giftModel);
 
         /**
@@ -572,33 +845,45 @@ public class GiftAnimLayout extends LinearLayout {
 
     private void doGiftEndRemoveLogic(final GiftHolder giftHolder, final String key) {
 
-        giftHolder.getItemView().post(new Runnable() {
-                                          @Override
-                                          public void run() {
-                                              giftHolder.tvValue.clearAnimation();
-                                              Log.w(TAG, "已移除view:");
-                                              giftHolder.getItemView().clearAnimation();
-                                              removeView(giftHolder.getItemView());
-                                              atShowMaps.remove(key);
-                                              synchronized (waitList) {//判断排队的队列。
-                                                  if (waitList.size() > 0 && getChildCount() <= maxShowCount) {//如果有最大限制的总数了就不应该超过。
-                                                      final UserInfoPair userInfoGiftModelPair = waitList.get(0);
-                                                      final Integer count = waitList.getCount(userInfoGiftModelPair);
-                                                      waitList.remove(0);
+        this.post(new Runnable() {
+                      @Override
+                      public void run() {
+                          giftHolder.tvValue.clearAnimation();
+                          Log.w(TAG, "已移除view:");
+                          giftHolder.getItemView().clearAnimation();
+                          View itemView = giftHolder.getItemView();
+                          removeView(itemView);
+                          synchronized (mCacheViews) {
+                              if (mCacheViews.size() < mCacheVewCount) {
+                                  mCacheViews.add((ViewGroup) itemView);
+                              }
+                          }
 
-//                                                 final UserInfoI userInfo = userInfoGiftModelPair.first;
-//                                                 final GiftModelI giftModel = userInfoGiftModelPair.second;
-                                                      Log.d(TAG, "重新取出队列中的礼物 此礼物排队总数：" + count);
-                                                      post(new LoopRunnable(getContext(), userInfoGiftModelPair, count));
-                                                  }
+//                          requestLayout();
+                          atShowMaps.remove(key);
+                          synchronized (waitList) {//判断排队的队列。
+                              if (waitList.size() > 0 && getChildCount() <= maxShowCount) {
+                                  /**
+                                   *
+                                   * 如果当前的孩子小于了最大显示总数了，而且队列中还有 就 执行。移除动画。但是如果不想排队只想一直显示4个怎么办，调用方法 {@link GiftAnimLayout#setonl}
+                                   */
+                                  final UserInfoPair userInfoGiftModelPair = waitList.get(0);
+                                  final Integer count = waitList.getCount(userInfoGiftModelPair);
+                                  waitList.remove(0);
+                                  Log.d(TAG, "重新取出队列中的礼物 此礼物排队总数：" + count);
+                                  post(new LoopRunnable(getContext(), userInfoGiftModelPair, count));
+                              }
 
-                                              }
-                                          }
-                                      }
+                          }
+                      }
+                  }
 
         );
     }
 
+    /**
+     * 不应该叫循环runnable,而应该叫继续完成未完成的任务runnble
+     */
     class LoopRunnable implements Runnable {
         public LoopRunnable(Context context, UserInfoPair userInfoGiftModelPair, int count) {
             this.context = context;
@@ -643,8 +928,6 @@ public class GiftAnimLayout extends LinearLayout {
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        GiftAnimLayout.this.removeCallbacks(null);
-        handler.removeCallbacksAndMessages(null);
     }
 
     public static class GiftHolder implements BaseViewHolderI {

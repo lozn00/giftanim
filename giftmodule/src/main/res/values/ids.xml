@@ -25,4 +25,6 @@
 <resources>
     <!--结束动画的标识符-->
     <item name="gift_anim_end_tag" type="id"/>
+    <item name="across_ing" type="id"/>
+    <item name="gift_bar_view_key" type="id"/>
 </resources>

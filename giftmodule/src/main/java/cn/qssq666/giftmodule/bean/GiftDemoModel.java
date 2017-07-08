@@ -11,6 +11,10 @@ public class GiftDemoModel implements GiftModelI {
     public GiftDemoModel() {
     }
 
+    public GiftDemoModel(String image) {
+        this.image = image;
+    }
+
     public GiftDemoModel(int money, String img) {
         this.money = money;
         this.image = img;
