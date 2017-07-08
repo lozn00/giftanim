@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:fillAfter="true"
+    android:fillBefore="false"
+
+    >
+    <!--500毫秒后再开始动画-->
+    <!--android:shareInterpolator="true"-->
+    <!--这样所有的Animation共用一个Interpolator。-->
+    <!--在代码中用代码设置如下-->
+    <!--anim.setInterpolator(new AccelerateInterpolator());-->
+    <!--在new一个AnimationSet中传入true则所有的Animation共用Interpolator。-->
+
+    <!--repeatCount 0表示不执行，-1表示不限制次数（直到过期不会走onAnimalend），默认为0。楼主设置成1,表示执行一次。-->
+    <!--<rotate-->
+    <!--android:duration="@integer/dp_anim_time"-->
+    <!--android:fromDegrees="0"-->
+    <!--android:pivotX="50%"-->
+    <!--android:pivotY="50%"-->
+    <!--android:repeatCount="0"-->
+    <!--android:toDegrees="360" />-->
+    <!--<alpha-->
+    <!--android:duration="@integer/dp_anim_time"-->
+    <!--android:fromAlpha="0.5"-->
+    <!--android:repeatCount="0"-->
+    <!--android:toAlpha="1.0" />-->
+    <scale
+        android:duration="1000"
+        android:fromXScale="0"
+        android:fromYScale="0"
+        android:pivotX="50%"
+        android:pivotY="50%"
+        android:repeatCount="0"
+        android:toXScale="2"
+        android:toYScale="2" />
+    <translate xmlns:android="http://schemas.android.com/apk/res/android"
+        android:duration="1000"
+        android:fillAfter="true"
+        android:fromXDelta="-100%p"
+        android:toXDelta="0" />
+</set>
