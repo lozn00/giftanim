@@ -5,6 +5,8 @@
 
 ![演示图片地址](https://github.com/qssq/giftanim/blob/master/Pictures/anim.gif)
 
+视频demo演示
+http://v.youku.com/v_show/id_XMjg3ODMyNDc3Ng==.html?spm=a2h3j.8428770.3416059.1
 #Live giftanim 经典的直播礼物动画 你值得拥有！
 
 集成起来非常简单
