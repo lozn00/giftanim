@@ -8,7 +8,6 @@ import android.widget.Toast;
 import com.facebook.drawee.backends.pipeline.Fresco;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Random;
 
 import cn.qssq666.giftmodule.bean.GiftDemoModel;
@@ -45,10 +44,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
         giftAnimLayout.setGiftAdapterAndCallBack(new GiftBarAdapter());//具体作用看GiftBarAdapter注释
-        giftAnimLayout.setMaxShowCount(2);
-        giftAnimLayout.setMustAnimHide(false);
+        giftAnimLayout.setMaxShowCount(4);
+
+        giftAnimLayout.setMustAnimHide(true);
         giftAnimLayout.setAllowAcrossAnimBug(true);
-        giftAnimLayout.setThanQueueClearFirstAndNotAddQueue(true);
+        giftAnimLayout.setThanQueueClearFirstAndNotAddQueue(false);
 //        giftAnimLayout.setThanQueueClearFirstAndNotAddQueue(true);//这个方法为true后通常配合MustAnimHide setAllowAcrossAnimBug结合使用 因为 如果让新的一直显示不队列等待就需要让第一个移除这个移除过程是比较长的，那么肯定会超过所谓的最大显示数了。另外布局动画时间等待交叉动画太快有bug,但是这里必须移除等待否则会出现毛病。
 //        giftAnimLayout.setThanMaxShowClearZero(false);
         giftAnimLayout.setAcrossDValue(1);
@@ -59,7 +59,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         giftAnimLayout.setKeyGenerationRuleHolder(new GiftAnimLayout.KeyGenerationRuleHolder() {
             @Override
             public String onRequestGenerationRule(GiftModelI modelI, UserInfoI userInfoI) {
-                return modelI.getGiftImage() + "" + userInfoI.getUserId() + "" + new Date().getTime() + "";
+//                return modelI.getGiftImage() + "" + userInfoI.getUserId() + "" + new Date().getTime() + "";//不再xxxxx 但是这样必须在holder里面隐藏它。
+                return modelI.getGiftImage() + "" + userInfoI.getUserId();//不再xxxxx 但是这样必须在holder里面隐藏它。
             }
         });
         giftAnimLayout.setThanMaxShowClearZero(true);//
