@@ -941,6 +941,7 @@ public class GiftAnimLayout extends LinearLayout {
                           removeView(itemView);
                           synchronized (mCacheViews) {
                               if (mCacheViews.size() < mCacheVewCount) {
+                                  giftHolder.tvValue.setValue(1);
                                   mCacheViews.add((ViewGroup) itemView);
                               }
                           }
