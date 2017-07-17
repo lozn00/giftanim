@@ -33,7 +33,7 @@ public class UserInfoPair extends Pair<UserInfoI, GiftModelI> {
         }
         UserInfoPair pPair = (UserInfoPair) o;
         Log.i(TAG, "pPair:" + pPair + ",THIS:" + this);
-        if (GiftAnimLayout.getKey(this.first, this.second).equalsIgnoreCase(GiftAnimLayout.getKey(pPair.first, pPair.second))) {
+        if (GiftAnimLayout.generateKeyByUserAndGiftModel(this.first, this.second).equalsIgnoreCase(GiftAnimLayout.generateKeyByUserAndGiftModel(pPair.first, pPair.second))) {
             return true;
         } else {
             return false;

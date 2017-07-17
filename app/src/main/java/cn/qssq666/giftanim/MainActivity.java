@@ -23,6 +23,7 @@ import cn.qssq666.giftmodule.periscope.GiftAnimLayout;
  * 支持自定义设置图片加载方式
  * 支持设置队列，让所有礼物都在足够的时间完成。
  * 支持自定义礼物总数 设置很简单
+ * 注意看方法注释哦
  */
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -44,18 +45,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
         giftAnimLayout.setGiftAdapterAndCallBack(new GiftBarAdapter());//具体作用看GiftBarAdapter注释
-        giftAnimLayout.setMaxShowCount(4);
+        giftAnimLayout.setMaxShowCount(2);
+//        giftAnimLayout.setThanQueueClearFirstAndNotAddQueue(true);
+//        giftAnimLayout.setThanMaxShowClearZero(false);
+        giftAnimLayout.setAcrossDValue(1);
+//        giftAnimLayout.setAcrossDValue(Integer.MAX_VALUE);
         giftAnimLayout.setHidenAnim(R.anim.follow_anim_from_left_vertical_hidden);
 //        giftAnimLayout.setHidenAnim(R.anim.follow_anim_from_left_to_right_hidden);
         giftAnimLayout.setShowDuration(4200);
 
-        giftAnimLayout.setThanMaxWait(true);//
+        giftAnimLayout.setThanMaxShowClearZero(true);//
         findViewById(R.id.btn_zan).setOnClickListener(this);
         findViewById(R.id.btn_gift_random).setOnClickListener(this);
         findViewById(R.id.btn_gift1).setOnClickListener(this);
         findViewById(R.id.btn_gift2).setOnClickListener(this);
         findViewById(R.id.btn_gift3).setOnClickListener(this);
         findViewById(R.id.btn_gift4).setOnClickListener(this);
+        findViewById(R.id.btn_gift5).setOnClickListener(this);
     }
 
     @Override
@@ -117,6 +123,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 info.setUserId("1004");
                 info.setPortraitUri(faces.get(3));
                 GiftModelI model = new GiftDemoModel(imgs.get(3));
+                giftAnimLayout.showNewGift(this, info, model);
+                break;
+
+            }
+            case R.id.btn_gift5: {
+                UserDemoInfo info = new UserDemoInfo();
+                info.setName("傻妞5号");
+                info.setUserId("1005");
+                info.setPortraitUri(faces.get(3));
+                GiftModelI model = new GiftDemoModel(imgs.get(2));
                 giftAnimLayout.showNewGift(this, info, model);
                 break;
 

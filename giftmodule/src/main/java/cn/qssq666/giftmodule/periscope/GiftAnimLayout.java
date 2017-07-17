@@ -87,7 +87,7 @@ public class GiftAnimLayout extends LinearLayout {
     /**
      * 允许发生交叉动画的总数差值
      */
-    private int mAcrossDValue = 5;
+    private int mAcrossDValue = 1;
     private boolean mLayoutAniming;
     /**
      * 用来记录布局动画的结束时间 结束之后时间上海有一段时间需要错开 否则返回点击就出毛病了。
@@ -107,9 +107,8 @@ public class GiftAnimLayout extends LinearLayout {
     }
 
     /**
-     * 你可以自己设定礼物bar从左边到横栏的显示效果
-     *
      * @param showAnim
+     * @deprecated 这里不是通过xml加载的
      */
     public void setShowAnim(int showAnim) {
         this.mSHowAnim = showAnim;
@@ -120,6 +119,7 @@ public class GiftAnimLayout extends LinearLayout {
      */
     private int mSHowAnim = R.anim.follow_anim_from_left_to_center;
     private int mHidenAnim = R.anim.follow_anim_from_left_to_right_hidden;
+
 
     /**
      * 单位 毫秒
@@ -380,24 +380,34 @@ public class GiftAnimLayout extends LinearLayout {
         if (pair == null) {
             synchronized (waitList) {
                 if (maxShowCount > 0 && getChildCount() >= maxShowCount) {
+                    if (mThanNotAddQueueClearFirst) {
+                        View firstView = getChildAt(0);
+                        Pair<GiftHolder, GiftModelI> pairFind = findHolderAndTagHolderByView(firstView);
+                        if (pairFind != null) {
+                            doGiftEndRemoveLogic(pairFind.first, findKeyByView(firstView));
+                        }
+                        productAndShow(context, userInfo, giftModel);
+                    } else {
 
 
-                    if (!thanMaxWait) {
-                        //超过了赶快改第一个显示view的时间为马上消失
-                        View childAt = getChildAt(0);
-                        String tag = (String) childAt.getTag(R.id.gift_bar_view_key);
-                        Pair<GiftHolder, GiftEndRunnable> giftHolderGiftEndRunnablePair = atShowMaps.get(tag);
-                        Log.w(TAG, "尝试加速消失 " + tag + "," + giftHolderGiftEndRunnablePair);
-                        if (giftHolderGiftEndRunnablePair != null) {
-                            GiftAnimLayout.this.removeCallbacks(giftHolderGiftEndRunnablePair.second);
-                            GiftAnimLayout.this.post(giftHolderGiftEndRunnablePair.second);
+                        if (!thanMaxShowClearShowTime) {
+                            //超过了赶快改第一个显示view的时间为马上消失
+                            View childAt = getChildAt(0);
+                            String tag = findKeyByView(childAt);
+                            Pair<GiftHolder, GiftEndRunnable> giftHolderGiftEndRunnablePair = atShowMaps.get(tag);
+                            Log.w(TAG, "尝试加速消失 " + tag + "," + giftHolderGiftEndRunnablePair);
+                            if (giftHolderGiftEndRunnablePair != null) {
+                                GiftAnimLayout.this.removeCallbacks(giftHolderGiftEndRunnablePair.second);
+                                GiftAnimLayout.this.post(giftHolderGiftEndRunnablePair.second);
+                            }
+
                         }
 
-                    }
+                        waitList.addUnique(UserInfoPair.create(userInfo, giftModel));
+                        if (giftCallBack != null) {
+                            giftCallBack.onAddWaitUnique(giftModel);
+                        }
 
-                    waitList.addUnique(UserInfoPair.create(userInfo, giftModel));
-                    if (giftCallBack != null) {
-                        giftCallBack.onAddWaitUnique(giftModel);
                     }
 
                 } else {
@@ -414,19 +424,35 @@ public class GiftAnimLayout extends LinearLayout {
         }
     }
 
-    /**
-     * 超过了最大显示是否等待 等待的意思是让每一个view显示的时间都市公平的， 比如有人一直送礼物那么他是没法顶下去的，只有当礼物总数小于了指定数的时候才开始插入因为显示屏超过了最大值被等待队列的礼物，如果传递false,那么尽可能的执行完动画，直接把显示礼物时间调零并马上执行隐藏移除动画。
-     *
-     * @param thanMaxWait
-     */
-    public void setThanMaxWait(boolean thanMaxWait) {
-        this.thanMaxWait = thanMaxWait;
+    private String findKeyByView(View firstView) {
+        return firstView == null ? null : (String) firstView.getTag(R.id.gift_bar_view_key);
     }
 
-    private boolean thanMaxWait = false;
+    /**
+     * 清除时间等待比如需要4200毫秒才能消失现在是加快他的消失这个功能然并卵
+     * 超过了最大显示是否等待 等待的意思是让每一个view显示的时间都市公平的， 比如有人一直送礼物那么他是没法顶下去的，只有当礼物总数小于了指定数的时候才开始插入因为显示屏超过了最大值被等待队列的礼物，如果传递false,
+     * 那么尽可能的执行完动画，直接把显示礼物时间调零并马上执行隐藏移除动画。
+     *
+     * @param thanMaxShowClearFirst
+     */
+    public void setThanMaxShowClearZero(boolean thanMaxShowClearFirst) {
+        this.thanMaxShowClearShowTime = thanMaxShowClearFirst;
+    }
 
+    private boolean thanMaxShowClearShowTime = true;
 
-    public void acrossAnim(final View view, final View to, float startX, final float startY, float endX, final float endY, final int i) {
+    /**
+     * 超过最大显示数就把第一个index 0去掉，但是会出现动画消失有毛病的问题.
+     *
+     * @param clearFirstOnThanMaxShow
+     */
+    public void setThanQueueClearFirstAndNotAddQueue(boolean clearFirstOnThanMaxShow) {
+        this.mThanNotAddQueueClearFirst = clearFirstOnThanMaxShow;
+    }
+
+    private boolean mThanNotAddQueueClearFirst = true;
+
+    private void acrossAnim(final View view, final View to, float startX, final float startY, float endX, final float endY, final int i) {
 //        view.setY(startY);//动画完成后该回去
         removeView(view);
         addView(view);
@@ -497,7 +523,7 @@ public class GiftAnimLayout extends LinearLayout {
 
     }
 
-    public void acrossRemoveAndToAddAnim(View view, View toView, int i) {
+    private void acrossRemoveAndToAddAnim(View view, View toView, int i) {
         acrossAnim(view, toView, view.getX(), view.getY(), toView.getX(), toView.getY(), i);
 
 
@@ -544,19 +570,12 @@ public class GiftAnimLayout extends LinearLayout {
 
             if (mAcrossDValue != Integer.MAX_VALUE) {
 
-                String tag = (String) childAt.getTag(R.id.gift_bar_view_key);
-                if (tag == null) {
-                    return;
-                } else {
-                    Log.w(TAG, "处理需要交叉显示动画礼物key:" + tag + "");
-                }
-                Pair<GiftHolder, GiftEndRunnable> giftHolderGiftEndRunnablePair = atShowMaps.get(tag);
-                if (giftHolderGiftEndRunnablePair == null) {
-
-                    Log.w(TAG, "处理需要交叉显示动画礼物key已经被销毁了忽略" + tag + "");
+                Pair<GiftHolder, GiftModelI> findPair = findHolderAndTagHolderByView(childAt);
+                if (findPair == null || findPair.first == null) {
+                    Log.w(TAG, "找不到holder无法产生交替动画" + findPair);
                     return;
                 }
-                int bottomGiftCount = getGiftCount(giftHolderGiftEndRunnablePair.first.tvValue, giftHolderGiftEndRunnablePair.second.giftModel);
+                int bottomGiftCount = getGiftCount(findPair.first.tvValue, findPair.second);
                 int currentGiftCount = getGiftCount(giftHolder.tvValue, giftModel);
                 int dValue = currentGiftCount - bottomGiftCount;//如果是整数 例如 本来底部是40  我这里  是 60 那么差值是20 那么如果我设置的是5 就发生一次那么这里就应该发生交换了，同样如果比底部的还小是负数那么不会发生。
                 if (dValue >= mAcrossDValue) {
@@ -586,6 +605,15 @@ public class GiftAnimLayout extends LinearLayout {
         }
     }
 
+
+    private Pair<GiftHolder, GiftModelI> findHolderAndTagHolderByView(View view) {
+        String tag = findKeyByView(view);
+        if (tag == null) {
+            return null;
+        }
+        Pair<GiftHolder, GiftEndRunnable> pair = atShowMaps.get(tag);
+        return Pair.create(pair == null ? null : pair.first, pair.second.giftModel);
+    }
 
     public final String TAG_TIME = "TIME";
 
@@ -637,7 +665,11 @@ public class GiftAnimLayout extends LinearLayout {
     }
 
 
-    public static String getKey(UserInfoI userInfo, GiftModelI giftModel) {
+    public String getKey(UserInfoI userInfo, GiftModelI giftModel) {
+        return generateKeyByUserAndGiftModel(userInfo, giftModel);
+    }
+
+    public static String generateKeyByUserAndGiftModel(UserInfoI userInfo, GiftModelI giftModel) {
         return giftModel.getGiftImage() + userInfo.getUserId();
     }
 
@@ -786,7 +818,7 @@ public class GiftAnimLayout extends LinearLayout {
         void onAddNewGift(GiftModelI giftModel);
 
         /**
-         * 如果调用了 {@link GiftAnimLayout#setThanMaxWait(boolean)} 为false那么这个永远不会执行。
+         * 如果调用了 {@link GiftAnimLayout#setThanMaxShowClearZero(boolean)} 为false那么这个永远不会执行。
          *
          * @param giftModel
          */
@@ -967,4 +999,6 @@ public class GiftAnimLayout extends LinearLayout {
             return itemView;
         }
     }
+
+
 }

@@ -70,6 +70,13 @@
             android:text="礼4" />
 
         <Button
+            android:id="@+id/btn_gift5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="礼5" />
+
+        <Button
             android:id="@+id/btn_gift_random"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
