@@ -7,11 +7,10 @@
     >
     <!--170dp-->
 
-
     <RelativeLayout
         android:id="@+id/relayout_live_anchor"
-        android:layout_width="@dimen/dp_live_bar_width"
-        android:layout_height="@dimen/gift_bar_height"
+        android:layout_width="230dp"
+        android:layout_height="50dp"
         android:background="@drawable/shape_gift_bar"
         android:clickable="true"
         android:focusable="true"
@@ -20,8 +19,8 @@
 
         <cn.qssq666.giftmodule.ui.CircleImageView
             android:id="@+id/iv_head"
-            android:layout_width="@dimen/gift_bar_height"
-            android:layout_height="@dimen/gift_bar_height"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_centerVertical="true"
             android:scaleType="centerCrop"
             android:visibility="visible"
@@ -42,7 +41,7 @@
             android:minWidth="4.0dip"
             android:singleLine="true"
             android:text="情随事ffffff迁"
-            android:textColor="@color/colorBlack"
+            android:textColor="@android:color/white"
             android:textSize="13sp" />
 
 

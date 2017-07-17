@@ -1,4 +1,4 @@
-package cn.qssq666.giftanim;
+package cn.qssq666.demo;
 
 import android.app.Application;
 import android.content.Context;

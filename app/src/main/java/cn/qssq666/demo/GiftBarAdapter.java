@@ -21,7 +21,7 @@
  *
  */
 
-package cn.qssq666.giftanim;
+package cn.qssq666.demo;
 
 import android.net.Uri;
 import android.util.Log;
@@ -33,7 +33,6 @@ import com.facebook.drawee.interfaces.DraweeController;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
-import cn.qssq666.giftmodule.R;
 import cn.qssq666.giftmodule.bean.GiftDemoModel;
 import cn.qssq666.giftmodule.interfacei.GiftModelI;
 import cn.qssq666.giftmodule.interfacei.UserInfoI;

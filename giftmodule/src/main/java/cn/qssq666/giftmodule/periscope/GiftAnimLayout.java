@@ -68,10 +68,25 @@ import cn.qssq666.giftmodule.util.DensityUtil;
  * 当同一个礼物同一个userid送出去礼物就会x1 x2 x3
  */
 public class GiftAnimLayout extends LinearLayout {
+    private final static String READ_ME_FIELD = "作用参见set本字段的使用方法";
     private static final String TAG = "GiftAnimLayout";
 
     //    Handler handler = new Handler(Looper.getMainLooper());
     private ArrayList<ImageView> singInstanceImageView = new ArrayList<>();
+
+    /**
+     * 在需求为超过指定数必须让新的马上显示而不添加等待的解决方案    有2种 一种就是马上移除并添加动画 第二种 就是 动画移除，动画移除会因为动画的隐藏时间，这种逻辑会超过最大显示数允许超过最大显示数的
+     *
+     * @param mMustAnimHide
+     */
+    public void setMustAnimHide(boolean mMustAnimHide) {
+        this.mMustAnimHide = mMustAnimHide;
+    }
+
+    /**
+     * {@link GiftAnimLayout#READ_ME_FIELD}
+     */
+    private boolean mMustAnimHide = true;
 
     /**
      * 允许发生交叉动画的总数差值 也就是说如果 x 1 x2 x3 这样的东西
@@ -81,9 +96,20 @@ public class GiftAnimLayout extends LinearLayout {
      * @param mAcrossDValue
      */
     public void setAcrossDValue(int mAcrossDValue) {
+
         this.mAcrossDValue = mAcrossDValue;
     }
 
+    /**
+     * 允许显示交叉动画bug也就是出现很多很多的时候交叉来不及了，就需要加入队列等待，否则会出现一些不优雅的情况，但是假如等待则导致 某需求 超过最大数必须移除，那么这个功能就必须打开了，否则梦点击可能出现超过最大值而且还要多很多个。
+     *
+     * @param allowAcrossAnimBug
+     */
+    public void setAllowAcrossAnimBug(boolean allowAcrossAnimBug) {
+        this.allowAcrossAnimBug = allowAcrossAnimBug;
+    }
+
+    private boolean allowAcrossAnimBug=true;
     /**
      * 允许发生交叉动画的总数差值
      */
@@ -108,7 +134,7 @@ public class GiftAnimLayout extends LinearLayout {
 
     /**
      * @param showAnim
-     * @deprecated 这里不是通过xml加载的
+     * @deprecated 这里不是通过xml加载的 因此没卵用了。
      */
     public void setShowAnim(int showAnim) {
         this.mSHowAnim = showAnim;
@@ -359,20 +385,23 @@ public class GiftAnimLayout extends LinearLayout {
         //这里的时间判断 是解决 队列重新调整 礼物过来 礼物动画还没有执行完毕那么会出现一些比较丑陋的情况 ，把时间差调节越大那么久出现尴尬的情况几率就越少。
         long l = System.currentTimeMillis();
         Log.w(TAG, "布局动画执行时间:" + (l - mCurrentLayoutAnimEndTime) + "," + l);
-        if (mLayoutAniming || System.currentTimeMillis() - mCurrentLayoutAnimEndTime < mLayoutAnimTime) {
-            Log.w(TAG, "布局动画尚未结束 进行循环等待中..");
-            postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    if (mLayoutAniming || System.currentTimeMillis() - mCurrentLayoutAnimEndTime < mLayoutAnimTime) {
-                        postDelayed(this, 200);
-                    } else {
-                        Log.w(TAG, "布局动画等待结束了开始新的礼物动画.");
-                        showNewGift(context, userInfo, giftModel);
+        if (!allowAcrossAnimBug) {
+
+            if (mLayoutAniming || System.currentTimeMillis() - mCurrentLayoutAnimEndTime < mLayoutAnimTime) {
+                Log.w(TAG, "布局动画尚未结束 进行循环等待中..");
+                postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mLayoutAniming || System.currentTimeMillis() - mCurrentLayoutAnimEndTime < mLayoutAnimTime) {
+                            postDelayed(this, 200);
+                        } else {
+                            Log.w(TAG, "布局动画等待结束了开始新的礼物动画.");
+                            showNewGift(context, userInfo, giftModel);
+                        }
                     }
-                }
-            }, 200);
-            return;
+                }, 200);
+                return;
+            }
         }
 
         Pair<GiftHolder, GiftEndRunnable> pair = atShowMaps.get(getKey(userInfo, giftModel));
@@ -382,9 +411,15 @@ public class GiftAnimLayout extends LinearLayout {
                 if (maxShowCount > 0 && getChildCount() >= maxShowCount) {
                     if (mThanNotAddQueueClearFirst) {
                         View firstView = getChildAt(0);
-                        Pair<GiftHolder, GiftModelI> pairFind = findHolderAndTagHolderByView(firstView);
+                        Pair<GiftHolder, GiftEndRunnable> pairFind = findShowPairByView(firstView);
                         if (pairFind != null) {
-                            doGiftEndRemoveLogic(pairFind.first, findKeyByView(firstView));
+                            GiftAnimLayout.this.removeCallbacks(pairFind.second);
+                            if (mMustAnimHide) {
+                                pairFind.second.run();
+                            } else {
+                                doGiftEndRemoveLogic(pairFind.first, findKeyByView(firstView));
+
+                            }
                         }
                         productAndShow(context, userInfo, giftModel);
                     } else {
@@ -442,8 +477,8 @@ public class GiftAnimLayout extends LinearLayout {
     private boolean thanMaxShowClearShowTime = true;
 
     /**
-     * 超过最大显示数就把第一个index 0去掉，但是会出现动画消失有毛病的问题.
-     *
+     * 超过最大显示数就把第一个index 0去掉，但是会出现动画消失有毛病的问题.  y因此 这个方法为true后通常配合MustAnimHide结合使用 因为 如果让新的一直显示不队列等待就需要让第一个移除这个移除过程是比较长的，那么肯定会超过所谓的最大显示数了。要测试是否正常 就提供一个随机 来进行测试。
+     *这个方法为true后通常配合MustAnimHide setAllowAcrossAnimBug结合使用 因为 如果让新的一直显示不队列等待就需要让第一个移除这个移除过程是比较长的，那么肯定会超过所谓的最大显示数了。另外布局动画时间等待交叉动画太快有bug,但是这里必须移除等待否则会出现毛病。
      * @param clearFirstOnThanMaxShow
      */
     public void setThanQueueClearFirstAndNotAddQueue(boolean clearFirstOnThanMaxShow) {
@@ -570,12 +605,12 @@ public class GiftAnimLayout extends LinearLayout {
 
             if (mAcrossDValue != Integer.MAX_VALUE) {
 
-                Pair<GiftHolder, GiftModelI> findPair = findHolderAndTagHolderByView(childAt);
+                Pair<GiftHolder, GiftEndRunnable> findPair = findShowPairByView(childAt);
                 if (findPair == null || findPair.first == null) {
                     Log.w(TAG, "找不到holder无法产生交替动画" + findPair);
                     return;
                 }
-                int bottomGiftCount = getGiftCount(findPair.first.tvValue, findPair.second);
+                int bottomGiftCount = getGiftCount(findPair.first.tvValue, findPair.second.giftModel);
                 int currentGiftCount = getGiftCount(giftHolder.tvValue, giftModel);
                 int dValue = currentGiftCount - bottomGiftCount;//如果是整数 例如 本来底部是40  我这里  是 60 那么差值是20 那么如果我设置的是5 就发生一次那么这里就应该发生交换了，同样如果比底部的还小是负数那么不会发生。
                 if (dValue >= mAcrossDValue) {
@@ -606,13 +641,13 @@ public class GiftAnimLayout extends LinearLayout {
     }
 
 
-    private Pair<GiftHolder, GiftModelI> findHolderAndTagHolderByView(View view) {
+    private Pair<GiftHolder, GiftEndRunnable> findShowPairByView(View view) {
         String tag = findKeyByView(view);
         if (tag == null) {
             return null;
         }
         Pair<GiftHolder, GiftEndRunnable> pair = atShowMaps.get(tag);
-        return Pair.create(pair == null ? null : pair.first, pair.second.giftModel);
+        return pair;
     }
 
     public final String TAG_TIME = "TIME";
@@ -666,6 +701,9 @@ public class GiftAnimLayout extends LinearLayout {
 
 
     public String getKey(UserInfoI userInfo, GiftModelI giftModel) {
+        if (keyGenerationRuleHolder != null) {
+            return keyGenerationRuleHolder.onRequestGenerationRule(giftModel, userInfo);
+        }
         return generateKeyByUserAndGiftModel(userInfo, giftModel);
     }
 
@@ -1000,5 +1038,19 @@ public class GiftAnimLayout extends LinearLayout {
         }
     }
 
+    /**
+     * 不设置默认由图片地址和用户id组成一个 唯一 来控制是否x1 x2 x3
+     *
+     * @param keyGenerationRuleHolder
+     */
+    public void setKeyGenerationRuleHolder(KeyGenerationRuleHolder keyGenerationRuleHolder) {
+        this.keyGenerationRuleHolder = keyGenerationRuleHolder;
+    }
+
+    KeyGenerationRuleHolder keyGenerationRuleHolder;
+
+    public interface KeyGenerationRuleHolder {
+        String onRequestGenerationRule(GiftModelI modelI, UserInfoI userInfoI);
+    }
 
 }
