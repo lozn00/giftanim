@@ -72,6 +72,22 @@ public class GiftAnimLayout extends LinearLayout {
 
     //    Handler handler = new Handler(Looper.getMainLooper());
     private ArrayList<ImageView> singInstanceImageView = new ArrayList<>();
+
+    /**
+     * 允许发生交叉动画的总数差值 也就是说如果 x 1 x2 x3 这样的东西
+     * 比如 一个礼物产生了，而且这个礼物本来存在的，但是这个礼物不是最底部的，如果这个礼物的总数连续数大于最底部的 多少 就发生一次交替，这里就是设置必须大于多少才能 发生交叉动画。
+     * 如果要让他永远不发生变化 那么就设置 {@link Integer#MAX_VALUE} 的最大值或你自己填写也行. 只不过直接设置效率高一点 不需要判断了
+     *
+     * @param mAcrossDValue
+     */
+    public void setAcrossDValue(int mAcrossDValue) {
+        this.mAcrossDValue = mAcrossDValue;
+    }
+
+    /**
+     * 允许发生交叉动画的总数差值
+     */
+    private int mAcrossDValue = 5;
     private boolean mLayoutAniming;
     /**
      * 用来记录布局动画的结束时间 结束之后时间上海有一段时间需要错开 否则返回点击就出毛病了。
@@ -523,11 +539,34 @@ public class GiftAnimLayout extends LinearLayout {
         int childCount = this.getChildCount();
         int i = this.indexOfChild(giftHolder.getItemView());
         if (i != childCount - 1) {
+
             View childAt = this.getChildAt(childCount - 1);
-            acrossRemoveAndToAddAnim(giftHolder.getItemView(), childAt, i);
-        } else {
-            Log.w(TAG, "是最后一个,starty:" + giftHolder.getItemView().getY());
-        }
+
+            if (mAcrossDValue != Integer.MAX_VALUE) {
+
+                String tag = (String) childAt.getTag(R.id.gift_bar_view_key);
+                if (tag == null) {
+                    return;
+                } else {
+                    Log.w(TAG, "处理需要交叉显示动画礼物key:" + tag + "");
+                }
+                Pair<GiftHolder, GiftEndRunnable> giftHolderGiftEndRunnablePair = atShowMaps.get(tag);
+                if (giftHolderGiftEndRunnablePair == null) {
+
+                    Log.w(TAG, "处理需要交叉显示动画礼物key已经被销毁了忽略" + tag + "");
+                    return;
+                }
+                int bottomGiftCount = getGiftCount(giftHolderGiftEndRunnablePair.first.tvValue, giftHolderGiftEndRunnablePair.second.giftModel);
+                int currentGiftCount = getGiftCount(giftHolder.tvValue, giftModel);
+                int dValue = currentGiftCount - bottomGiftCount;//如果是整数 例如 本来底部是40  我这里  是 60 那么差值是20 那么如果我设置的是5 就发生一次那么这里就应该发生交换了，同样如果比底部的还小是负数那么不会发生。
+                if (dValue >= mAcrossDValue) {
+                    acrossRemoveAndToAddAnim(giftHolder.getItemView(), childAt, i);
+                } else {
+                    Log.w(TAG, "没有超过差值 直接交换" + giftHolder.getItemView().getY());
+                }
+            } else {
+                acrossRemoveAndToAddAnim(giftHolder.getItemView(), childAt, i);
+            }
 
 
        /* if (tag != null && tag instanceof GiftEndRunnable) {
@@ -544,7 +583,7 @@ public class GiftAnimLayout extends LinearLayout {
 //            atShowMaps.remove(getKey(userInfo,giftModel));
             Log.w(TAG, "警告 出现 队列异常 问题 显示集合中还存在，但是并没有找到定时关闭runnable" + tag + ",gift:" + giftModel.getTitle());
         }*/
-        return;
+        }
     }
 
 
@@ -554,7 +593,8 @@ public class GiftAnimLayout extends LinearLayout {
      * @param group
      * @return
      */
-    private Pair<GiftHolder, GiftEndRunnable> createGiftViewPair(ViewGroup group, String key, GiftModelI model) {
+    private Pair<GiftHolder, GiftEndRunnable> createGiftViewPair(ViewGroup group, String
+            key, GiftModelI model) {
         GiftHolder giftHolder = new GiftHolder(group);
         GiftEndRunnable endRunnable = new GiftEndRunnable(giftHolder, key);
         endRunnable.setGiftModel(model);
@@ -613,9 +653,9 @@ public class GiftAnimLayout extends LinearLayout {
 
         ObjectAnimator anim1 = ObjectAnimator.ofFloat(pair.first.getItemView(), "translationX",
                 -100, 0);//
-        ObjectAnimator anim2 = ObjectAnimator.ofFloat(pair.first.getItemView(), "alpha", 0, 1);
+        ObjectAnimator anim2 = ObjectAnimator.ofFloat(pair.first.getItemView(), "alpha", 0.5f, 1);
         AnimatorSet animSet = new AnimatorSet();
-        animSet.setDuration(500);
+        animSet.setDuration(400);
         animSet.setInterpolator(new AccelerateInterpolator());
         animSet.addListener(new Animator.AnimatorListener() {
                                 @Override

@@ -79,7 +79,8 @@ http://v.youku.com/v_show/id_XMjg3ODMyNDc3Ng==.html?spm=a2h3j.8428770.3416059.1
 支持自定义图片加载方式  2017-07-08完工
 
 支持扩展 ，简单的布局动画用户轻松扩展
-
+方便自定义 礼物的x1 x2 x3是由 userid和礼物地址控制的如果不需要连x的动画可以让每一个礼物返回的key不一样 继承礼物动动画类，复写这个方法，就行这个方法叫ggetKey(UserInfoI userInfo, GiftModelI giftModel)可以返回一个时间戳就行，
+支持自定义交叉值控制 当礼物已存在但不在最靠屏幕中间的，如果 这个礼物超过了最靠屏幕中间已经积累的值的指定大小就发生一次交叉动画 ，setAcrossDValue 比如设置5 如果不管是多少度交叉就设置更大的数值或者设置为Integer的最大值
 简单的接口实现 giftmodel userinfo,用户轻松解耦，
 
 唯一标识 是由userInfo的getUserid+礼物地址组成
