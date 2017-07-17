@@ -46,9 +46,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         giftAnimLayout.setGiftAdapterAndCallBack(new GiftBarAdapter());//具体作用看GiftBarAdapter注释
         giftAnimLayout.setMaxShowCount(4);
 
+
+        //下面3个方法结合使用吧，我的能力有限。我不想搞这么麻烦的东西了，
         giftAnimLayout.setMustAnimHide(true);
-        giftAnimLayout.setAllowAcrossAnimBug(true);
+        giftAnimLayout.setAllowAcrossAnimBug(false);
         giftAnimLayout.setThanQueueClearFirstAndNotAddQueue(false);
+
+
 //        giftAnimLayout.setThanQueueClearFirstAndNotAddQueue(true);//这个方法为true后通常配合MustAnimHide setAllowAcrossAnimBug结合使用 因为 如果让新的一直显示不队列等待就需要让第一个移除这个移除过程是比较长的，那么肯定会超过所谓的最大显示数了。另外布局动画时间等待交叉动画太快有bug,但是这里必须移除等待否则会出现毛病。
 //        giftAnimLayout.setThanMaxShowClearZero(false);
         giftAnimLayout.setAcrossDValue(1);
