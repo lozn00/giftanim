@@ -1,10 +1,17 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
     repositories {
         jcenter()
     }
-    dependencies {
+
+/*    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"//jcenter
+        }
+    }*/
+    dependencies {//https://github.com/novoda/bintray-release
+        classpath 'com.novoda:bintray-release:0.4.0'//上传到jcenter
+//        classpath "com.gradle.publish:plugin-publish-plugin:0.9.7"//jcenter
         classpath 'com.android.tools.build:gradle:2.3.3'
 
         // NOTE: Do not place your application dependencies here; they belong
@@ -14,6 +21,7 @@ buildscript {
 
 allprojects {
     repositories {
+//        mavenCentral()//jcenters上传
         jcenter()
     }
 }

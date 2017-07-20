@@ -1,5 +1,5 @@
 apply plugin: 'com.android.library'
-
+apply plugin: 'com.novoda.bintray-release' //Jcenter上传需要。
 android {
     compileSdkVersion 25
     buildToolsVersion "25.0.3"
@@ -19,6 +19,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+   //jcenter上传需要
+        lintOptions {
+            abortOnError false
+        }
+
 }
 
 dependencies {
@@ -28,4 +34,21 @@ dependencies {
     })
     compile 'com.android.support:appcompat-v7:25.3.1'
     testCompile 'junit:junit:4.12'
+}
+
+publish {
+    //complile 'com.qssq666:giftanim:0.1'
+    userOrg = 'qssq'//bintray网的用户id
+    groupId = 'cn.qssq666'//自己定义一个唯一的java的包名
+    artifactId = 'giftanim'//在bintray上的package名字
+    publishVersion = '0.1'//版本号
+    desc = 'just upload this and ?'//描述，不重要
+    website = 'https://github.com/qssq666/giftanim'//网站，不重要；尽量模拟github上的地址，例如我这样的；当然你有地址最好了
+    licences = ['Apache-2.0']//协议
+
+}
+tasks.withType(Javadoc) { //防止doc错误
+    options.addStringOption('Xdoclint:none', '-quiet')
+    options.addStringOption('encoding', 'UTF-8')
+    options.addStringOption('charSet', 'UTF-8')
 }
