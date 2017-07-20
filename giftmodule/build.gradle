@@ -18,12 +18,13 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    } //jcenter上传需要
+    lintOptions {
+
+        abortOnError false
     }
 
-   //jcenter上传需要
-        lintOptions {
-            abortOnError false
-        }
+
 
 }
 
@@ -38,7 +39,7 @@ dependencies {
 
 publish {
     //complile 'com.qssq666:giftanim:0.1'
-    userOrg = 'qssq'//bintray网的用户id
+    userOrg = 'luozheng'//bintray网的用户id  04 Not Found [message:Subject 'qssq' was not found]
     groupId = 'cn.qssq666'//自己定义一个唯一的java的包名
     artifactId = 'giftanim'//在bintray上的package名字
     publishVersion = '0.1'//版本号

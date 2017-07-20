@@ -20,6 +20,10 @@ android {
 
 
     }
+    //jcenter上传需要
+    lintOptions {
+        abortOnError false
+    }
 }
 
 dependencies {
