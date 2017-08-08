@@ -63,9 +63,14 @@ public class FavorLayout extends RelativeLayout {
 
     private int dHeight;
     private int dWidth;
+
+    public void setDrawables(Drawable[] drawables) {
+        this.drawables = drawables;
+    }
+
     Drawable[] drawables;
 
-    private void init(Context context) {
+    public void init(Context context) {
   /*      gestureDetector = new GestureDetector(getContext(), new GestureDetector.OnGestureListener() {
             *//**
          * 按下
@@ -132,20 +137,23 @@ public class FavorLayout extends RelativeLayout {
 //        red = getResources().getDrawable(R.drawable.red);
 //        yellow = getResources().getDrawable(R.drawable.yellow);
 //        blue = getResources().getDrawable(R.drawable.blue);
-        drawables = new Drawable[]{
+        if(drawables==null){
+            drawables = new Drawable[]{
 //                ContextCompat.getDrawable(context, R.drawable.img_redsmall),
 //                ContextCompat.getDrawable(context, R.drawable.img_redsmall),
-                ContextCompat.getDrawable(context, R.drawable.img_bluesmall),
-                ContextCompat.getDrawable(context, R.drawable.zan_1_bear),
-                ContextCompat.getDrawable(context, R.drawable.zan_2_cat),
-                ContextCompat.getDrawable(context, R.drawable.zan_3_circle),
-                ContextCompat.getDrawable(context, R.drawable.zan_4_heart),
-                ContextCompat.getDrawable(context, R.drawable.zan_5_pig),
-                ContextCompat.getDrawable(context, R.drawable.zan_6_sheep),
-                ContextCompat.getDrawable(context, R.drawable.zan_7_rabbit),
-                ContextCompat.getDrawable(context, R.drawable.zan_8_spotty),
-                ContextCompat.getDrawable(context, R.drawable.zan_9_dog)
-        };
+                    ContextCompat.getDrawable(context, R.drawable.img_bluesmall),
+                    ContextCompat.getDrawable(context, R.drawable.zan_1_bear),
+                    ContextCompat.getDrawable(context, R.drawable.zan_2_cat),
+                    ContextCompat.getDrawable(context, R.drawable.zan_3_circle),
+                    ContextCompat.getDrawable(context, R.drawable.zan_4_heart),
+                    ContextCompat.getDrawable(context, R.drawable.zan_5_pig),
+                    ContextCompat.getDrawable(context, R.drawable.zan_6_sheep),
+                    ContextCompat.getDrawable(context, R.drawable.zan_7_rabbit),
+                    ContextCompat.getDrawable(context, R.drawable.zan_8_spotty),
+                    ContextCompat.getDrawable(context, R.drawable.zan_9_dog)
+            };
+
+        }
 //        drawables[3] = ContextCompat.getDrawable(context,R.drawable.ico_flower_purple);
         //获取图的宽高 用于后面的计算
         //注意 我这里3张图片的大小都是一样的,所以我只取了一个
@@ -167,6 +175,7 @@ public class FavorLayout extends RelativeLayout {
         interpolators[3] = accdec;
 
     }
+
 
     public LayoutParams getContentLayoutParam() {
         return lp;
