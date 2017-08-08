@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         favorLayout = ((FavorLayout) findViewById(R.id.favorlayout));
 
         giftAnimLayout = ((GiftAnimLayout) findViewById(R.id.giftlayout));
-        giftAnimLayout.setOnGiftBarClick(new GiftAnimLayout.OnGiftBarClick() {
+        giftAnimLayout.setOnGiftBarFaceClick(new GiftAnimLayout.OnGiftBarFaceClick() {
             @Override
             public void onClick(UserInfoI userInfo) {
                 Toast.makeText(MainActivity.this, "你点击了" + userInfo.getName(), Toast.LENGTH_SHORT).show();

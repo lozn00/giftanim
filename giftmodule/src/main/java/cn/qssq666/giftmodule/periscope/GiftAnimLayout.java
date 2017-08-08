@@ -109,7 +109,7 @@ public class GiftAnimLayout extends LinearLayout {
         this.allowAcrossAnimBug = allowAcrossAnimBug;
     }
 
-    private boolean allowAcrossAnimBug=true;
+    private boolean allowAcrossAnimBug = true;
     /**
      * 允许发生交叉动画的总数差值
      */
@@ -478,7 +478,8 @@ public class GiftAnimLayout extends LinearLayout {
 
     /**
      * 超过最大显示数就把第一个index 0去掉，但是会出现动画消失有毛病的问题.  y因此 这个方法为true后通常配合MustAnimHide结合使用 因为 如果让新的一直显示不队列等待就需要让第一个移除这个移除过程是比较长的，那么肯定会超过所谓的最大显示数了。要测试是否正常 就提供一个随机 来进行测试。
-     *这个方法为true后通常配合MustAnimHide setAllowAcrossAnimBug结合使用 因为 如果让新的一直显示不队列等待就需要让第一个移除这个移除过程是比较长的，那么肯定会超过所谓的最大显示数了。另外布局动画时间等待交叉动画太快有bug,但是这里必须移除等待否则会出现毛病。
+     * 这个方法为true后通常配合MustAnimHide setAllowAcrossAnimBug结合使用 因为 如果让新的一直显示不队列等待就需要让第一个移除这个移除过程是比较长的，那么肯定会超过所谓的最大显示数了。另外布局动画时间等待交叉动画太快有bug,但是这里必须移除等待否则会出现毛病。
+     *
      * @param clearFirstOnThanMaxShow
      */
     public void setThanQueueClearFirstAndNotAddQueue(boolean clearFirstOnThanMaxShow) {
@@ -679,11 +680,11 @@ public class GiftAnimLayout extends LinearLayout {
         atShowMaps.put(key, giftViewPair);
         giftViewPair.first.tvName.setText("" + userInfo.getName());
         giftViewPair.first.tvValue.setValue(getGiftCount(giftViewPair.first.tvValue, giftModel));
-        giftViewPair.first.getItemView().setOnClickListener(new OnClickListener() {
+        giftViewPair.first.ivFace.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (onGiftBarClick != null) {
-                    onGiftBarClick.onClick(userInfo);
+                if (onGiftBarFaceClick != null) {
+                    onGiftBarFaceClick.onClick(userInfo);
                     Log.w(TAG, "点击了 某个送花item" + userInfo.getName());
                 }
             }
@@ -1002,13 +1003,13 @@ public class GiftAnimLayout extends LinearLayout {
         }
     }
 
-    public void setOnGiftBarClick(OnGiftBarClick onGiftBarClick) {
-        this.onGiftBarClick = onGiftBarClick;
+    public void setOnGiftBarFaceClick(OnGiftBarFaceClick onGiftBarClick) {
+        this.onGiftBarFaceClick = onGiftBarClick;
     }
 
-    OnGiftBarClick onGiftBarClick;
+    OnGiftBarFaceClick onGiftBarFaceClick;
 
-    public interface OnGiftBarClick {
+    public interface OnGiftBarFaceClick {
         void onClick(UserInfoI userInfo);
     }
 
