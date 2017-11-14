@@ -35,7 +35,7 @@ public class StrokeTextView extends TextView {
         this.value = value;
     }
 
-    int value = 1;
+    int value = 0;
     private TextView borderText = null;///用于描边的TextView
 
     public StrokeTextView(Context context) {

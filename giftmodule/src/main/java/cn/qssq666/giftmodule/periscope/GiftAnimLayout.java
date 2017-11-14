@@ -782,7 +782,7 @@ public class GiftAnimLayout extends LinearLayout {
 
 
     public int getGiftCount(StrokeTextView strokeTextView, GiftModelI model) {
-        return giftCallBack == null || model.getShowcount() == 0 ? 1 + strokeTextView.getValue() : giftCallBack.onRequestShowGiftCount(model, strokeTextView);
+        return giftCallBack == null || model.getShowcount() == 0 ? 1+strokeTextView.getValue() : giftCallBack.onRequestShowGiftCount(model, strokeTextView);
     }
 
     /**
