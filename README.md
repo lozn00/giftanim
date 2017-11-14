@@ -15,10 +15,10 @@ http://v.youku.com/v_show/id_XMjg3ODMyNDc3Ng==.html?spm=a2h3j.8428770.3416059.1
 ##### 使用方法
 
 ```
- compile 'cn.qssq666:giftanim:0.1'
+ compile 'cn.qssq666:giftanim:0.4'
 ```
 
-
+如果0.4用不了用0.3 还是用不了请联系我,我不打算用jcenter了，最近其他库都出现了毛病..
 布局定位到与与一条线对齐并包裹内容，或者外面嵌套一个帧布局然后底部对齐也是可以的。
 `
 
