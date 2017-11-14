@@ -28,6 +28,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private FavorLayout favorLayout;
     private GiftAnimLayout giftAnimLayout;
+    private ArrayList<GiftDemoModel> selfControlShowList;
+    private UserDemoInfo mSelfUserInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +76,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.btn_gift2).setOnClickListener(this);
         findViewById(R.id.btn_gift3).setOnClickListener(this);
         findViewById(R.id.btn_gift4).setOnClickListener(this);
+
+
         findViewById(R.id.btn_gift5).setOnClickListener(this);
+        selfControlShowList = new ArrayList<>();
+
+        mSelfUserInfo = new UserDemoInfo();
+        mSelfUserInfo.setName("傻妞3号");
+        mSelfUserInfo.setUserId("1002");
+        mSelfUserInfo.setPortraitUri(faces.get(2));
+        selfControlShowList.add(new GiftDemoModel(imgs.get(0)));
+        selfControlShowList.add(new GiftDemoModel(imgs.get(1)));
+        selfControlShowList.add(new GiftDemoModel(imgs.get(2)));
+        selfControlShowList.add(new GiftDemoModel(imgs.get(2)));
+        selfControlShowList.add(new GiftDemoModel(imgs.get(new Random().nextInt(imgs.size()))));
     }
 
     @Override
@@ -99,17 +114,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
             break;
 
-            case R.id.btn_gift1: {
-                UserDemoInfo info = new UserDemoInfo();
-                info.setName("傻妞1号");
-                info.setUserId("1000");
-                info.setPortraitUri(faces.get(0));
-                GiftModelI model = new GiftDemoModel(imgs.get(0));
-                giftAnimLayout.showNewGift(this, info, model);
+            case R.id.btn_gift1: {//btn_gift1是演示自己维护礼物总数 如果一直是0传递进去那么就 不交给自己维护了，所以这里判断不允许等于0 。
+                GiftDemoModel giftModelI = selfControlShowList.get(new Random().nextInt(selfControlShowList.size()));
+                int showcount = giftModelI.getShowcount();
+                if (showcount == 0) {//只有服务器传递的0我才根据另外一个逻辑进行操作。也就是放弃叠加值。
+                    giftModelI.setShowcount(1);
+                } else {
+                    giftModelI.setShowcount(1 + showcount);
+                }
+                giftAnimLayout.showNewGift(this, mSelfUserInfo, giftModelI);
+                //如果随机展示的模型，还在显示，也就是不会走 GiftBarAdapter onGiftAnimOver的重置总数逻辑.
                 break;
 
             }
             case R.id.btn_gift2: {
+
                 UserDemoInfo info = new UserDemoInfo();
                 info.setName("傻妞2号");
                 info.setUserId("1001");
